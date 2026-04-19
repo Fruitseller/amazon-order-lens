@@ -2,6 +2,8 @@
 
 Frontend-only React/TypeScript app that analyzes your Amazon purchase history from the official GDPR data export. **All processing happens locally in your browser — no data ever leaves your device.**
 
+**Live demo:** [fruitseller.github.io/amazon-order-lens](https://fruitseller.github.io/amazon-order-lens/)
+
 Target audience: Amazon.de customers (UI is in German, prices in EUR, dates in `DD.MM.YYYY`).
 
 ## Features
