@@ -47,3 +47,34 @@ export function formatNumber(value: number, fractionDigits = 0): string {
   });
   return normalizeWhitespace(formatter.format(value));
 }
+
+const MONTH_NAMES_DE: ReadonlyArray<string> = [
+  "Januar",
+  "Februar",
+  "März",
+  "April",
+  "Mai",
+  "Juni",
+  "Juli",
+  "August",
+  "September",
+  "Oktober",
+  "November",
+  "Dezember",
+];
+
+export function formatMonthKey(key: string): string {
+  const match = /^(\d{4})-(\d{2})$/.exec(key);
+  if (!match) return key;
+  const month = parseInt(match[2] ?? "0", 10);
+  const name = MONTH_NAMES_DE[month - 1];
+  if (!name) return key;
+  return `${name} ${match[1]}`;
+}
+
+export function formatWeekKey(key: string): string {
+  const match = /^(\d{4})-W(\d{2})$/.exec(key);
+  if (!match) return key;
+  return `KW ${match[2]} / ${match[1]}`;
+}
+

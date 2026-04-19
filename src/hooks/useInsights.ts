@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useFilteredData } from "./useFilteredData";
+import { useAppState } from "../context/AppContext";
 import {
   INVESTMENT_ANNUAL_RATE,
   PRIME_SHIPPING_COST_EUR,
@@ -7,24 +8,36 @@ import {
 import type { ProductCategory } from "../types/order";
 import {
   calculateAverageOrderValue,
+  calculateAverageRefund,
   calculateCarrierDistribution,
   calculateDayOfWeekDistribution,
   calculateFulfillmentSpeed,
   calculateHourDistribution,
   calculateInvestmentOpportunityCost,
   calculatePrimeSavingsEstimate,
+  calculateRefundReasonDistribution,
+  calculateRefundsByMonth,
+  calculateReturnsByCategory,
+  calculateShoppingEventStats,
   calculateSpendingByCategory,
   calculateSpendingByMonth,
   calculateSpendingByYear,
+  calculateTotalRefunded,
   calculateTotalSpending,
   findBusiestDay,
   findLongestGap,
+  findRecordMonth,
+  findRecordWeek,
   findRepeatPurchases,
   findTopItems,
+  findTopReturnedProducts,
   type BusiestDayResult,
   type GapResult,
+  type RecordPeriod,
   type RepeatPurchaseEntry,
+  type ShoppingEventEntry,
   type TopItemEntry,
+  type TopReturnedProductEntry,
 } from "../services/statistics";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -54,6 +67,9 @@ export interface Insights {
   primeSavingsEstimate: number;
   longestGap: GapResult | null;
   busiestDay: BusiestDayResult | null;
+  recordMonth: RecordPeriod | null;
+  recordWeek: RecordPeriod | null;
+  shoppingEventStats: ShoppingEventEntry[];
   fulfillmentSpeedDays: number | null;
   carrierDistribution: Map<string, number>;
 
@@ -61,10 +77,19 @@ export interface Insights {
 
   giftCount: number;
   totalSavings: number;
+
+  totalRefunded: number;
+  refundCount: number;
+  averageRefund: number;
+  refundsByMonth: Map<string, number>;
+  refundReasonDistribution: Map<string, number>;
+  topReturnedProducts: TopReturnedProductEntry[];
+  returnsByCategory: Map<ProductCategory, number>;
 }
 
 export function useInsights(): Insights {
   const { items, orders } = useFilteredData();
+  const { returns, returnRequests } = useAppState();
 
   return useMemo<Insights>(() => {
     let firstOrderDate: Date | null = null;
@@ -130,6 +155,9 @@ export function useInsights(): Insights {
       ),
       longestGap: findLongestGap(orders),
       busiestDay: findBusiestDay(orders),
+      recordMonth: findRecordMonth(items, orders),
+      recordWeek: findRecordWeek(items, orders),
+      shoppingEventStats: calculateShoppingEventStats(items, orders),
       fulfillmentSpeedDays: calculateFulfillmentSpeed(items),
       carrierDistribution: calculateCarrierDistribution(items),
 
@@ -137,6 +165,14 @@ export function useInsights(): Insights {
 
       giftCount: giftOrderIds.size,
       totalSavings,
+
+      totalRefunded: calculateTotalRefunded(returns),
+      refundCount: returns.length,
+      averageRefund: calculateAverageRefund(returns),
+      refundsByMonth: calculateRefundsByMonth(returns),
+      refundReasonDistribution: calculateRefundReasonDistribution(returns),
+      topReturnedProducts: findTopReturnedProducts(returnRequests, 20),
+      returnsByCategory: calculateReturnsByCategory(returnRequests, items),
     };
-  }, [items, orders]);
+  }, [items, orders, returns, returnRequests]);
 }

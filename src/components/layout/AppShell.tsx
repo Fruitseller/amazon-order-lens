@@ -9,6 +9,7 @@ import { OverviewView } from "../dashboard/OverviewView";
 import { SpendingView } from "../dashboard/SpendingView";
 import { PatternsView } from "../dashboard/PatternsView";
 import { CategoriesView } from "../dashboard/CategoriesView";
+import { ReturnsView } from "../dashboard/ReturnsView";
 import { FunFactsView } from "../dashboard/FunFactsView";
 import { UploadScreen } from "../upload/UploadScreen";
 import type { ViewId } from "../../types/state";
@@ -24,6 +25,8 @@ function viewFor(view: ViewId) {
       return <PatternsView />;
     case "categories":
       return <CategoriesView />;
+    case "returns":
+      return <ReturnsView />;
     case "funfacts":
       return <FunFactsView />;
   }

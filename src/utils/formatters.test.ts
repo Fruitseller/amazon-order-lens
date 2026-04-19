@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, formatEuro, formatNumber, formatPercent } from "./formatters";
+import {
+  formatDate,
+  formatEuro,
+  formatMonthKey,
+  formatNumber,
+  formatPercent,
+  formatWeekKey,
+} from "./formatters";
 
 describe("formatEuro", () => {
   it("formats positive decimal numbers with German locale", () => {
@@ -66,5 +73,25 @@ describe("formatNumber", () => {
 
   it("handles decimals with configurable precision", () => {
     expect(formatNumber(12.5, 1)).toBe("12,5");
+  });
+});
+
+describe("formatMonthKey", () => {
+  it("renders YYYY-MM as German month name + year", () => {
+    expect(formatMonthKey("2024-11")).toBe("November 2024");
+  });
+
+  it("returns the input unchanged for malformed keys", () => {
+    expect(formatMonthKey("nope")).toBe("nope");
+  });
+});
+
+describe("formatWeekKey", () => {
+  it("renders YYYY-Www as 'KW ww / YYYY'", () => {
+    expect(formatWeekKey("2024-W48")).toBe("KW 48 / 2024");
+  });
+
+  it("returns the input unchanged for malformed keys", () => {
+    expect(formatWeekKey("2024-48")).toBe("2024-48");
   });
 });

@@ -3,6 +3,7 @@ import {
   dayOfWeekLabelsDE,
   getDayOfWeek,
   getHourOfDay,
+  getISOWeekKey,
   getMonthKey,
   groupByMonth,
   groupByYear,
@@ -110,6 +111,33 @@ describe("groupByYear", () => {
     const groups = groupByYear(items);
     expect(groups.get(2025)?.length).toBe(1);
     expect(groups.has(2024)).toBe(false);
+  });
+});
+
+describe("getISOWeekKey (Europe/Berlin, ISO 8601)", () => {
+  it("returns YYYY-Www format", () => {
+    // 2024-11-29 (Black Friday) is a Friday, ISO week 48
+    expect(getISOWeekKey(new Date("2024-11-29T12:00:00Z"))).toBe("2024-W48");
+  });
+
+  it("uses ISO week-numbering year at year boundary (Dec days that belong to next year's W01)", () => {
+    // 2024-12-30 is Monday; the Thursday of that ISO week is 2025-01-02 → ISO year 2025, week 1
+    expect(getISOWeekKey(new Date("2024-12-30T12:00:00Z"))).toBe("2025-W01");
+  });
+
+  it("uses ISO week-numbering year at year boundary (early Jan days that belong to previous year)", () => {
+    // 2023-01-01 is Sunday; ISO week is 2022-W52
+    expect(getISOWeekKey(new Date("2023-01-01T12:00:00Z"))).toBe("2022-W52");
+  });
+
+  it("zero-pads single-digit week numbers", () => {
+    // 2024-01-08 is Monday of ISO week 2
+    expect(getISOWeekKey(new Date("2024-01-08T12:00:00Z"))).toBe("2024-W02");
+  });
+
+  it("respects Berlin timezone at day boundary", () => {
+    // 2024-01-07 23:30 UTC = 2024-01-08 00:30 Berlin → ISO week 2 of 2024
+    expect(getISOWeekKey(new Date("2024-01-07T23:30:00Z"))).toBe("2024-W02");
   });
 });
 

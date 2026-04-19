@@ -43,6 +43,26 @@ describe("runParserWorkerLogic — ZIP input", () => {
     expect(result.orders.length).toBeGreaterThan(0);
   });
 
+  it("parses refund details and return requests from a ZIP when present", async () => {
+    const csv = loadFixture("sample-orders.csv");
+    const refundCsv =
+      "Creation Date,Currency,Order ID,Quantity,Refund Amount,Refund Date,Reversal Reason\n" +
+      "2025-01-05T14:00:00Z,EUR,O-1,1,27.93,2025-01-05T15:00:00Z,Customer return\n";
+    const requestsCsv =
+      "ASIN,Order ID,Product Name,Return Reason Code,Return Shipping Method\n" +
+      "B0DSJ,O-1,Test product,CR-QUALITY_UNACCEPTABLE,DHL\n";
+    const zipBuf = await makeZip({
+      "Your Amazon Orders/Order History.csv": csv,
+      "Your Returns & Refunds/Refund Details.csv": refundCsv,
+      "Your Returns & Refunds/Return Requests.csv": requestsCsv,
+    });
+    const result = await runParserWorkerLogic({ kind: "zip", data: zipBuf });
+    expect(result.returns).toHaveLength(1);
+    expect(result.returns[0]?.refundAmount).toBeCloseTo(27.93, 2);
+    expect(result.returnRequests).toHaveLength(1);
+    expect(result.returnRequests[0]?.asin).toBe("B0DSJ");
+  });
+
   it("throws ZipExtractionError for a malformed zip", async () => {
     const bad = new TextEncoder().encode("not a zip").buffer;
     await expect(

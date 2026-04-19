@@ -26,7 +26,7 @@ describe("useIndexedDB", () => {
       createOrderItem({ asin: "PERSIST-B" }),
     ];
     const orders = aggregateOrders(items);
-    await saveData(items, orders, []);
+    await saveData(items, orders, [], []);
 
     const { result } = renderHook(
       () => ({ _hook: useIndexedDB(), state: useAppState() }),
@@ -55,7 +55,7 @@ describe("useIndexedDB", () => {
   it("exposes a clear helper that wipes both state and IndexedDB", async () => {
     const items = [createOrderItem({ asin: "WIPE-A" })];
     const orders = aggregateOrders(items);
-    await saveData(items, orders, []);
+    await saveData(items, orders, [], []);
 
     const { result } = renderHook(
       () => ({ hook: useIndexedDB(), state: useAppState() }),

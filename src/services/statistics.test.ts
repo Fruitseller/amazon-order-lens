@@ -1,25 +1,36 @@
 import { describe, expect, it } from "vitest";
 import {
   calculateAverageOrderValue,
+  calculateAverageRefund,
   calculateCarrierDistribution,
   calculateDayOfWeekDistribution,
   calculateFulfillmentSpeed,
   calculateHourDistribution,
   calculateInvestmentOpportunityCost,
   calculatePrimeSavingsEstimate,
+  calculateRefundReasonDistribution,
+  calculateRefundsByMonth,
+  calculateReturnsByCategory,
+  calculateShoppingEventStats,
   calculateSpendingByCategory,
   calculateSpendingByMonth,
   calculateSpendingByYear,
+  calculateTotalRefunded,
   calculateTotalSpending,
   findBusiestDay,
   findLongestGap,
+  findRecordMonth,
+  findRecordWeek,
   findRepeatPurchases,
   findTopItems,
+  findTopReturnedProducts,
 } from "./statistics";
 import {
   createOrderAggregate,
   createOrderItem,
+  createReturnRecord,
 } from "../../test/fixtures/sampleOrders";
+import type { ReturnRequest } from "../types/order";
 import { aggregateOrders } from "./aggregator";
 
 describe("calculateTotalSpending", () => {
@@ -312,6 +323,280 @@ describe("calculateFulfillmentSpeed", () => {
 
   it("returns null for empty input", () => {
     expect(calculateFulfillmentSpeed([])).toBeNull();
+  });
+});
+
+describe("calculateShoppingEventStats", () => {
+  function entryFor(
+    stats: ReturnType<typeof calculateShoppingEventStats>,
+    name: string,
+  ) {
+    const found = stats.find((e) => e.event === name);
+    if (!found) throw new Error(`Event ${name} not found in stats`);
+    return found;
+  }
+
+  it("returns one entry per known event even with empty input", () => {
+    const stats = calculateShoppingEventStats([], []);
+    const names = stats.map((e) => e.event).sort();
+    expect(names).toEqual(["Black Friday", "Cyber Monday", "Prime Day", "Weihnachten"]);
+    for (const e of stats) {
+      expect(e.totalSpending).toBe(0);
+      expect(e.orderCount).toBe(0);
+      expect(e.itemCount).toBe(0);
+    }
+  });
+
+  it("attributes items on Black Friday 2024 (2024-11-29)", () => {
+    const items = [
+      createOrderItem({
+        orderId: "BF-1",
+        orderDate: new Date("2024-11-29T10:00:00Z"),
+        totalOwed: 99,
+        quantity: 2,
+      }),
+    ];
+    const orders = aggregateOrders(items);
+    const stats = calculateShoppingEventStats(items, orders);
+    const bf = entryFor(stats, "Black Friday");
+    expect(bf.totalSpending).toBeCloseTo(99, 2);
+    expect(bf.orderCount).toBe(1);
+    expect(bf.itemCount).toBe(2);
+    expect(entryFor(stats, "Cyber Monday").orderCount).toBe(0);
+  });
+
+  it("attributes items on Cyber Monday 2024 (2024-12-02) and counts them under Weihnachten too", () => {
+    const items = [
+      createOrderItem({
+        orderId: "CM-1",
+        orderDate: new Date("2024-12-02T08:00:00Z"),
+        totalOwed: 50,
+      }),
+    ];
+    const orders = aggregateOrders(items);
+    const stats = calculateShoppingEventStats(items, orders);
+    expect(entryFor(stats, "Cyber Monday").orderCount).toBe(1);
+    expect(entryFor(stats, "Weihnachten").orderCount).toBe(1);
+  });
+
+  it("attributes items on Prime Day 2024 (2024-07-16/17)", () => {
+    const items = [
+      createOrderItem({
+        orderId: "PD-1",
+        orderDate: new Date("2024-07-16T09:00:00Z"),
+        totalOwed: 30,
+      }),
+      createOrderItem({
+        orderId: "PD-2",
+        orderDate: new Date("2024-07-17T09:00:00Z"),
+        totalOwed: 20,
+      }),
+    ];
+    const orders = aggregateOrders(items);
+    const stats = calculateShoppingEventStats(items, orders);
+    const pd = entryFor(stats, "Prime Day");
+    expect(pd.totalSpending).toBeCloseTo(50, 2);
+    expect(pd.orderCount).toBe(2);
+  });
+
+  it("attributes items in the Weihnachten window (Dec 1–24)", () => {
+    const items = [
+      createOrderItem({
+        orderId: "X-1",
+        orderDate: new Date("2024-12-15T12:00:00Z"),
+        totalOwed: 40,
+      }),
+      createOrderItem({
+        orderId: "X-2",
+        orderDate: new Date("2024-12-25T12:00:00Z"),
+        totalOwed: 999,
+      }),
+    ];
+    const orders = aggregateOrders(items);
+    const stats = calculateShoppingEventStats(items, orders);
+    const x = entryFor(stats, "Weihnachten");
+    expect(x.orderCount).toBe(1);
+    expect(x.totalSpending).toBeCloseTo(40, 2);
+  });
+
+  it("ignores items outside any event window", () => {
+    const items = [
+      createOrderItem({
+        orderId: "N-1",
+        orderDate: new Date("2024-01-15T12:00:00Z"),
+        totalOwed: 100,
+      }),
+    ];
+    const orders = aggregateOrders(items);
+    const stats = calculateShoppingEventStats(items, orders);
+    for (const e of stats) {
+      expect(e.totalSpending).toBe(0);
+      expect(e.orderCount).toBe(0);
+    }
+  });
+
+  it("aggregates across multiple years (Black Friday 2023 = 2023-11-24, 2024 = 2024-11-29)", () => {
+    const items = [
+      createOrderItem({
+        orderId: "BF23",
+        orderDate: new Date("2023-11-24T10:00:00Z"),
+        totalOwed: 10,
+      }),
+      createOrderItem({
+        orderId: "BF24",
+        orderDate: new Date("2024-11-29T10:00:00Z"),
+        totalOwed: 20,
+      }),
+    ];
+    const orders = aggregateOrders(items);
+    const stats = calculateShoppingEventStats(items, orders);
+    const bf = entryFor(stats, "Black Friday");
+    expect(bf.orderCount).toBe(2);
+    expect(bf.totalSpending).toBeCloseTo(30, 2);
+  });
+});
+
+describe("findRecordMonth", () => {
+  it("returns the YYYY-MM with highest spending and includes order/item counts", () => {
+    const items = [
+      // Oct 2024: 30 EUR / 2 orders / 3 items
+      createOrderItem({ orderId: "O-1", orderDate: new Date("2024-10-05T10:00:00Z"), totalOwed: 10, quantity: 1 }),
+      createOrderItem({ orderId: "O-2", orderDate: new Date("2024-10-15T10:00:00Z"), totalOwed: 20, quantity: 2 }),
+      // Nov 2024: 100 EUR / 1 order
+      createOrderItem({ orderId: "O-3", orderDate: new Date("2024-11-05T10:00:00Z"), totalOwed: 100, quantity: 1 }),
+    ];
+    const orders = aggregateOrders(items);
+    const rec = findRecordMonth(items, orders);
+    expect(rec?.key).toBe("2024-11");
+    expect(rec?.spending).toBeCloseTo(100, 2);
+    expect(rec?.orderCount).toBe(1);
+  });
+
+  it("returns null for empty input", () => {
+    expect(findRecordMonth([], [])).toBeNull();
+  });
+});
+
+describe("findRecordWeek", () => {
+  it("returns the ISO week with highest spending and includes order count", () => {
+    const items = [
+      // Week 2024-W48 (Mon 2024-11-25 .. Sun 2024-12-01): Black Friday week
+      createOrderItem({ orderId: "W-1", orderDate: new Date("2024-11-29T10:00:00Z"), totalOwed: 200 }),
+      // Week 2024-W43
+      createOrderItem({ orderId: "W-2", orderDate: new Date("2024-10-21T10:00:00Z"), totalOwed: 50 }),
+    ];
+    const orders = aggregateOrders(items);
+    const rec = findRecordWeek(items, orders);
+    expect(rec?.key).toBe("2024-W48");
+    expect(rec?.spending).toBeCloseTo(200, 2);
+    expect(rec?.orderCount).toBe(1);
+  });
+
+  it("returns null for empty input", () => {
+    expect(findRecordWeek([], [])).toBeNull();
+  });
+});
+
+describe("calculateTotalRefunded", () => {
+  it("sums refundAmount across return records", () => {
+    const returns = [
+      createReturnRecord({ refundAmount: 10 }),
+      createReturnRecord({ refundAmount: 25.5 }),
+      createReturnRecord({ refundAmount: 4.5 }),
+    ];
+    expect(calculateTotalRefunded(returns)).toBeCloseTo(40, 2);
+  });
+  it("returns 0 for empty input", () => {
+    expect(calculateTotalRefunded([])).toBe(0);
+  });
+});
+
+describe("calculateAverageRefund", () => {
+  it("returns total / count", () => {
+    const returns = [
+      createReturnRecord({ refundAmount: 10 }),
+      createReturnRecord({ refundAmount: 20 }),
+      createReturnRecord({ refundAmount: 30 }),
+    ];
+    expect(calculateAverageRefund(returns)).toBeCloseTo(20, 2);
+  });
+  it("returns 0 for empty input", () => {
+    expect(calculateAverageRefund([])).toBe(0);
+  });
+});
+
+describe("calculateRefundsByMonth", () => {
+  it("groups refundAmount by Berlin YYYY-MM key", () => {
+    const returns = [
+      createReturnRecord({ returnDate: new Date("2024-10-15T10:00:00Z"), refundAmount: 10 }),
+      createReturnRecord({ returnDate: new Date("2024-10-25T10:00:00Z"), refundAmount: 5 }),
+      createReturnRecord({ returnDate: new Date("2024-11-01T10:00:00Z"), refundAmount: 30 }),
+    ];
+    const result = calculateRefundsByMonth(returns);
+    expect(result.get("2024-10")).toBeCloseTo(15, 2);
+    expect(result.get("2024-11")).toBeCloseTo(30, 2);
+  });
+  it("returns empty Map for empty input", () => {
+    expect(calculateRefundsByMonth([]).size).toBe(0);
+  });
+});
+
+describe("calculateRefundReasonDistribution", () => {
+  it("counts refunds per reason, falls back to 'Unbekannt' for empty", () => {
+    const returns = [
+      createReturnRecord({ reason: "Customer return" }),
+      createReturnRecord({ reason: "Customer return" }),
+      createReturnRecord({ reason: "Defective" }),
+      createReturnRecord({ reason: "" }),
+    ];
+    const dist = calculateRefundReasonDistribution(returns);
+    expect(dist.get("Customer return")).toBe(2);
+    expect(dist.get("Defective")).toBe(1);
+    expect(dist.get("Unbekannt")).toBe(1);
+  });
+});
+
+describe("findTopReturnedProducts", () => {
+  function req(asin: string, productName: string, reasonCode = "CR-X"): ReturnRequest {
+    return { orderId: "O", asin, productName, reasonCode };
+  }
+  it("returns top-N products by request count", () => {
+    const requests = [
+      req("A", "Item A"),
+      req("A", "Item A"),
+      req("A", "Item A"),
+      req("B", "Item B"),
+      req("B", "Item B"),
+      req("C", "Item C"),
+    ];
+    const top = findTopReturnedProducts(requests, 2);
+    expect(top).toHaveLength(2);
+    expect(top[0]?.asin).toBe("A");
+    expect(top[0]?.count).toBe(3);
+    expect(top[1]?.asin).toBe("B");
+  });
+  it("returns [] for empty input", () => {
+    expect(findTopReturnedProducts([], 5)).toEqual([]);
+  });
+});
+
+describe("calculateReturnsByCategory", () => {
+  it("aggregates request counts by ASIN's inferred category from items", () => {
+    const items = [
+      createOrderItem({ asin: "A", inferredCategory: "elektronik" }),
+      createOrderItem({ asin: "B", inferredCategory: "buecher" }),
+      createOrderItem({ asin: "C", inferredCategory: "kueche" }),
+    ];
+    const requests: ReturnRequest[] = [
+      { orderId: "O1", asin: "A", productName: "x", reasonCode: "CR" },
+      { orderId: "O2", asin: "A", productName: "x", reasonCode: "CR" },
+      { orderId: "O3", asin: "B", productName: "y", reasonCode: "CR" },
+      { orderId: "O4", asin: "Z-unknown", productName: "z", reasonCode: "CR" },
+    ];
+    const dist = calculateReturnsByCategory(requests, items);
+    expect(dist.get("elektronik")).toBe(2);
+    expect(dist.get("buecher")).toBe(1);
+    expect(dist.get("sonstiges")).toBe(1); // unknown ASIN falls back
   });
 });
 

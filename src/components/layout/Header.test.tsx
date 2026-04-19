@@ -50,7 +50,7 @@ describe("Header", () => {
   it("clears data and dispatches CLEAR_DATA when Daten löschen is clicked", async () => {
     const items = [createOrderItem()];
     const orders = aggregateOrders(items);
-    await saveData(items, orders, []);
+    await saveData(items, orders, [], []);
     const user = userEvent.setup();
     renderWithContext(
       <>

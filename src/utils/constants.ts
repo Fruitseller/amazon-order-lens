@@ -50,5 +50,6 @@ export const VIEW_LABELS_DE = {
   spending: "Ausgaben",
   patterns: "Muster",
   categories: "Kategorien",
+  returns: "Retouren",
   funfacts: "Fun Facts",
 } as const;

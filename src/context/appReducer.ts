@@ -4,6 +4,7 @@ export const initialState: AppState = {
   items: [],
   orders: [],
   returns: [],
+  returnRequests: [],
   isDataLoaded: false,
 
   dateRange: { from: null, to: null },
@@ -33,6 +34,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         items: action.items,
         orders: action.orders,
         returns: action.returns,
+        returnRequests: action.returnRequests,
         isDataLoaded: true,
         isImporting: false,
         importProgress: 100,

@@ -1,6 +1,18 @@
-import type { OrderAggregate, OrderItem, ProductCategory, ReturnRecord } from "./order";
+import type {
+  OrderAggregate,
+  OrderItem,
+  ProductCategory,
+  ReturnRecord,
+  ReturnRequest,
+} from "./order";
 
-export type ViewId = "overview" | "spending" | "patterns" | "categories" | "funfacts";
+export type ViewId =
+  | "overview"
+  | "spending"
+  | "patterns"
+  | "categories"
+  | "returns"
+  | "funfacts";
 
 export interface DateRange {
   from: Date | null;
@@ -11,6 +23,7 @@ export interface AppState {
   items: OrderItem[];
   orders: OrderAggregate[];
   returns: ReturnRecord[];
+  returnRequests: ReturnRequest[];
   isDataLoaded: boolean;
 
   dateRange: DateRange;
@@ -31,6 +44,7 @@ export type AppAction =
       items: OrderItem[];
       orders: OrderAggregate[];
       returns: ReturnRecord[];
+      returnRequests: ReturnRequest[];
     }
   | { type: "IMPORT_ERROR"; error: string }
   | { type: "SET_DATE_RANGE"; range: DateRange }

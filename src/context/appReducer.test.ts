@@ -43,15 +43,20 @@ describe("appReducer — import actions", () => {
     const items = [createOrderItem()];
     const orders = [createOrderAggregate()];
     const returns = [createReturnRecord()];
+    const returnRequests = [
+      { orderId: "O", asin: "B0", productName: "p", reasonCode: "CR" },
+    ];
     const next = appReducer(initialState, {
       type: "IMPORT_COMPLETE",
       items,
       orders,
       returns,
+      returnRequests,
     });
     expect(next.items).toBe(items);
     expect(next.orders).toBe(orders);
     expect(next.returns).toBe(returns);
+    expect(next.returnRequests).toBe(returnRequests);
     expect(next.isDataLoaded).toBe(true);
     expect(next.isImporting).toBe(false);
     expect(next.importProgress).toBe(100);

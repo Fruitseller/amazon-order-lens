@@ -7,7 +7,7 @@ import { DayOfWeekChart } from "../charts/DayOfWeekChart";
 import { HourOfDayChart } from "../charts/HourOfDayChart";
 import { CalendarHeatmap } from "../charts/CalendarHeatmap";
 import { ShippingAnalysisChart } from "../charts/ShippingAnalysisChart";
-import { formatNumber } from "../../utils/formatters";
+import { formatEuro, formatMonthKey, formatNumber, formatWeekKey } from "../../utils/formatters";
 
 export function PatternsView() {
   const insights = useInsights();
@@ -50,6 +50,24 @@ export function PatternsView() {
           description={
             insights.busiestDay
               ? `${insights.busiestDay.count} Bestellungen`
+              : undefined
+          }
+        />
+        <KpiCard
+          label="Rekordmonat"
+          value={insights.recordMonth ? formatMonthKey(insights.recordMonth.key) : null}
+          description={
+            insights.recordMonth
+              ? `${formatEuro(insights.recordMonth.spending)} · ${formatNumber(insights.recordMonth.orderCount)} Bestellungen`
+              : undefined
+          }
+        />
+        <KpiCard
+          label="Rekordwoche"
+          value={insights.recordWeek ? formatWeekKey(insights.recordWeek.key) : null}
+          description={
+            insights.recordWeek
+              ? `${formatEuro(insights.recordWeek.spending)} · ${formatNumber(insights.recordWeek.orderCount)} Bestellungen`
               : undefined
           }
         />

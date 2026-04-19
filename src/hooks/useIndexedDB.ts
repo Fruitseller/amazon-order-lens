@@ -17,7 +17,8 @@ export function useIndexedDB(): IndexedDBHandle {
         type: "IMPORT_COMPLETE",
         items: data.items,
         orders: data.orders,
-        returns: data.returns,
+        returns: data.returns ?? [],
+        returnRequests: data.returnRequests ?? [],
       });
     });
     return () => {

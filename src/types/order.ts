@@ -98,9 +98,18 @@ export interface OrderAggregate {
 
 export interface ReturnRecord {
   orderId: string;
+  returnDate: Date;
+  refundAmount: number;
+  currency: string;
+  quantity: number;
+  reason: string;
+  asin?: string;
+  productName?: string;
+}
+
+export interface ReturnRequest {
+  orderId: string;
   asin: string;
   productName: string;
-  returnDate: Date;
-  reason: string;
-  refundAmount: number;
+  reasonCode: string;
 }

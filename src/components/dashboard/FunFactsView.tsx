@@ -3,7 +3,9 @@ import { useInsights } from "../../hooks/useInsights";
 import { useFilteredData } from "../../hooks/useFilteredData";
 import { SectionCard } from "../shared/SectionCard";
 import { KpiCard } from "../shared/KpiCard";
+import { DataTable, type DataTableColumn } from "../shared/DataTable";
 import { PaymentMethodChart } from "../charts/PaymentMethodChart";
+import type { ShoppingEventEntry } from "../../services/statistics";
 import {
   INVESTMENT_ANNUAL_RATE,
   PACKAGE_CO2_KG,
@@ -23,6 +25,34 @@ export function FunFactsView() {
 
   const investmentLabel = `Hätte ich bei ${formatNumber(INVESTMENT_ANNUAL_RATE * 100, 0)} % p.a. investiert`;
   const packagesCO2 = insights.orderCount * PACKAGE_CO2_KG;
+
+  const eventColumns: DataTableColumn<ShoppingEventEntry>[] = [
+    { key: "event", label: "Event", sortable: true },
+    {
+      key: "totalSpending",
+      label: "Ausgaben",
+      align: "right",
+      sortable: true,
+      sortValue: (row) => row.totalSpending,
+      render: (row) => formatEuro(row.totalSpending),
+    },
+    {
+      key: "orderCount",
+      label: "Bestellungen",
+      align: "right",
+      sortable: true,
+      sortValue: (row) => row.orderCount,
+      render: (row) => formatNumber(row.orderCount),
+    },
+    {
+      key: "itemCount",
+      label: "Artikel",
+      align: "right",
+      sortable: true,
+      sortValue: (row) => row.itemCount,
+      render: (row) => formatNumber(row.itemCount),
+    },
+  ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xl)" }}>
@@ -118,6 +148,17 @@ export function FunFactsView() {
         ) : (
           <div style={{ color: "var(--color-text-muted)" }}>—</div>
         )}
+      </SectionCard>
+
+      <SectionCard
+        title="Shopping-Events"
+        description="Bestellungen während Black Friday, Cyber Monday, Prime Day und Adventszeit (1.–24. Dez.)"
+      >
+        <DataTable
+          columns={eventColumns}
+          data={insights.shoppingEventStats}
+          initialSort={{ key: "totalSpending", direction: "desc" }}
+        />
       </SectionCard>
 
       <SectionCard title="Zahlungsmethoden">

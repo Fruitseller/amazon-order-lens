@@ -73,6 +73,21 @@ export function getYear(date: Date): number {
   return getBerlinParts(date).year;
 }
 
+export function getISOWeekKey(date: Date): string {
+  const { year, month, day, weekday } = getBerlinParts(date);
+  const isoDow = weekday + 1;
+  const thursday = new Date(Date.UTC(year, month - 1, day + (4 - isoDow)));
+  const isoYear = thursday.getUTCFullYear();
+  const jan4 = new Date(Date.UTC(isoYear, 0, 4));
+  const jan4DowUTC = jan4.getUTCDay() || 7;
+  const week1Monday = new Date(Date.UTC(isoYear, 0, 4 - (jan4DowUTC - 1)));
+  const diffDays = Math.floor(
+    (thursday.getTime() - week1Monday.getTime()) / (24 * 60 * 60 * 1000),
+  );
+  const week = Math.floor(diffDays / 7) + 1;
+  return `${isoYear}-W${String(week).padStart(2, "0")}`;
+}
+
 export function groupByMonth(items: readonly OrderItem[]): Map<string, OrderItem[]> {
   const result = new Map<string, OrderItem[]>();
   for (const item of items) {

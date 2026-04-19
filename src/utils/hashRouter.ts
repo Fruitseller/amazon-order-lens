@@ -7,6 +7,7 @@ const VALID_VIEWS: ReadonlySet<string> = new Set([
   "spending",
   "patterns",
   "categories",
+  "returns",
   "funfacts",
 ]);
 

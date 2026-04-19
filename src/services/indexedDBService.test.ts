@@ -7,7 +7,6 @@ import {
   saveData,
 } from "./indexedDBService";
 import {
-  createOrderAggregate,
   createOrderItem,
   createReturnRecord,
 } from "../../test/fixtures/sampleOrders";
@@ -31,7 +30,7 @@ describe("indexedDBService", () => {
     const orders = aggregateOrders(items);
     const returns = [createReturnRecord()];
 
-    await saveData(items, orders, returns);
+    await saveData(items, orders, returns, []);
     const loaded = await loadData();
 
     expect(loaded).not.toBeNull();
@@ -47,7 +46,7 @@ describe("indexedDBService", () => {
     ];
     const orders = aggregateOrders(items);
 
-    await saveData(items, orders, []);
+    await saveData(items, orders, [], []);
     const loaded = await loadData();
 
     expect(loaded?.items[0]?.orderDate).toBeInstanceOf(Date);
@@ -59,7 +58,7 @@ describe("indexedDBService", () => {
   it("clearData removes all persisted data", async () => {
     const items = [createOrderItem()];
     const orders = aggregateOrders(items);
-    await saveData(items, orders, []);
+    await saveData(items, orders, [], []);
     expect(await loadData()).not.toBeNull();
 
     await clearData();
@@ -68,13 +67,13 @@ describe("indexedDBService", () => {
 
   it("saveData overwrites previous contents", async () => {
     const firstItems = [createOrderItem({ asin: "FIRST" })];
-    await saveData(firstItems, aggregateOrders(firstItems), []);
+    await saveData(firstItems, aggregateOrders(firstItems), [], []);
 
     const secondItems = [
       createOrderItem({ asin: "SECOND-A" }),
       createOrderItem({ asin: "SECOND-B" }),
     ];
-    await saveData(secondItems, aggregateOrders(secondItems), []);
+    await saveData(secondItems, aggregateOrders(secondItems), [], []);
 
     const loaded = await loadData();
     expect(loaded?.items).toHaveLength(2);

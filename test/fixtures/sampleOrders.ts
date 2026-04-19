@@ -62,11 +62,11 @@ export function createOrderAggregate(
 export function createReturnRecord(overrides: Partial<ReturnRecord> = {}): ReturnRecord {
   return {
     orderId: "306-1234567-1234567",
-    asin: "B08N5WRWNW",
-    productName: "USB-C Kabel 2m",
     returnDate: new Date("2024-10-25T10:00:00Z"),
-    reason: "Nicht mehr benötigt",
     refundAmount: 23.18,
+    currency: "EUR",
+    quantity: 1,
+    reason: "Customer return",
     ...overrides,
   };
 }

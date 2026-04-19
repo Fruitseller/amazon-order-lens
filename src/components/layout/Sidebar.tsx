@@ -10,6 +10,7 @@ const VIEW_ORDER: readonly ViewId[] = [
   "spending",
   "patterns",
   "categories",
+  "returns",
   "funfacts",
 ];
 
