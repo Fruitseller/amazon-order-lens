@@ -1,0 +1,6 @@
+Website,Order ID,Order Date,Purchase Order Number,Currency,Unit Price,Unit Price Tax,Shipping Charge,Total Discounts,Total Owed,Shipment Item Subtotal,Shipment Item Subtotal Tax,ASIN,Product Condition,Quantity,Payment Instrument Type,Order Status,Shipment Status,Ship Date,Shipping Option,Shipping Address,Billing Address,Carrier Name & Tracking Number,Product Name,Gift Message,Gift Sender Name,Gift Recipient Contact Details
+Amazon.de,306-9000001-0000001,not-a-date,,EUR,not-a-number,abc,,0,,,,B08BAD0001,new,1,Visa,Closed,Shipped,,premium,"","",,Product with invalid numbers,,,
+Amazon.de,306-9000002-0000002,2024-05-01T10:00:00Z,,EUR,10.00,1.60,0,0,11.60,10.00,1.60,B08BAD0002,,,Visa,Closed,Shipped,also-not-a-date,premium,,,,Product with missing quantity,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,
+Amazon.de,306-9000004-0000004,2024-05-03T10:00:00Z,,EUR,9.99,1.60,0,0,11.59,9.99,1.60,B08BAD0004,new,abc,Visa,Closed,Shipped,2024-05-04T10:00:00Z,premium,"Test","Test",,Product with NaN quantity,,,
+Amazon.de,306-9000005-0000005,2024-05-05T10:00:00Z,,EUR,not-a-number,abc,,bad,,,,B08BAD0005,new,1,Visa,Closed,Shipped,2024-05-06T10:00:00Z,premium,"Test","Test",,Product with invalid numbers but valid date,,,

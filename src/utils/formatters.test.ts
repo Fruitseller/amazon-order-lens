@@ -1,0 +1,70 @@
+import { describe, expect, it } from "vitest";
+import { formatDate, formatEuro, formatNumber, formatPercent } from "./formatters";
+
+describe("formatEuro", () => {
+  it("formats positive decimal numbers with German locale", () => {
+    expect(formatEuro(1234.5)).toBe("1.234,50 €");
+  });
+
+  it("formats zero", () => {
+    expect(formatEuro(0)).toBe("0,00 €");
+  });
+
+  it("formats negative numbers", () => {
+    expect(formatEuro(-15.99)).toBe("-15,99 €");
+  });
+
+  it("formats large numbers with thousands separator", () => {
+    expect(formatEuro(1_234_567.89)).toBe("1.234.567,89 €");
+  });
+
+  it("rounds half to even / standard rounding at 2 decimals", () => {
+    expect(formatEuro(9.999)).toBe("10,00 €");
+  });
+
+  it("handles very small fractions", () => {
+    expect(formatEuro(0.004)).toBe("0,00 €");
+  });
+});
+
+describe("formatDate", () => {
+  it("formats Date as DD.MM.YYYY", () => {
+    expect(formatDate(new Date("2024-10-21T12:00:00Z"))).toBe("21.10.2024");
+  });
+
+  it("pads single-digit day and month", () => {
+    expect(formatDate(new Date("2024-01-05T12:00:00Z"))).toBe("05.01.2024");
+  });
+
+  it("returns a placeholder for null", () => {
+    expect(formatDate(null)).toBe("—");
+  });
+});
+
+describe("formatPercent", () => {
+  it("formats decimal fraction as German percent with one decimal place", () => {
+    expect(formatPercent(0.156)).toBe("15,6 %");
+  });
+
+  it("formats zero", () => {
+    expect(formatPercent(0)).toBe("0,0 %");
+  });
+
+  it("formats 100%", () => {
+    expect(formatPercent(1)).toBe("100,0 %");
+  });
+});
+
+describe("formatNumber", () => {
+  it("formats integer with German thousands separator", () => {
+    expect(formatNumber(1234)).toBe("1.234");
+  });
+
+  it("formats zero", () => {
+    expect(formatNumber(0)).toBe("0");
+  });
+
+  it("handles decimals with configurable precision", () => {
+    expect(formatNumber(12.5, 1)).toBe("12,5");
+  });
+});

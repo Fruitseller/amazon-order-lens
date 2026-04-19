@@ -8,7 +8,7 @@
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
 
 # Thumbnails
 ._*
@@ -206,3 +206,16 @@ sketch
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/react,node,visualstudiocode,macos
+
+# User Amazon exports — never commit private order data
+Your Orders.zip
+Your*Orders*.zip
+/*.zip
+
+# Playwright artifacts
+/test-results
+/playwright-report
+/playwright/.cache
+
+# JetBrains IDEs — editor config is per-contributor, not shared
+.idea/
