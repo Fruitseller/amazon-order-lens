@@ -26,7 +26,7 @@ function normalizeWhitespace(value: string): string {
 }
 
 export function formatEuro(value: number): string {
-  return normalizeWhitespace(euroFormatter.format(value));
+  return normalizeWhitespace(euroFormatter.format(value)).replace(/ (?=€$)/, "\u00A0");
 }
 
 export function formatPercent(fraction: number): string {
@@ -77,4 +77,3 @@ export function formatWeekKey(key: string): string {
   if (!match) return key;
   return `KW ${match[2]} / ${match[1]}`;
 }
-

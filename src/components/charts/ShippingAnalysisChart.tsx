@@ -1,13 +1,5 @@
 import { useMemo } from "react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { OrderItem } from "../../types/order";
 import { EmptyState } from "../shared/EmptyState";
 
@@ -16,10 +8,7 @@ export interface ShippingAnalysisChartProps {
   height?: number;
 }
 
-export function ShippingAnalysisChart({
-  items,
-  height = 300,
-}: ShippingAnalysisChartProps) {
+export function ShippingAnalysisChart({ items, height = 300 }: ShippingAnalysisChartProps) {
   const rows = useMemo(() => {
     const buckets = new Map<number, number>();
     for (const item of items) {
@@ -42,7 +31,7 @@ export function ShippingAnalysisChart({
 
   return (
     <div style={{ width: "100%", height }}>
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 0, height }}>
         <BarChart data={rows} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
           <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" />
           <XAxis

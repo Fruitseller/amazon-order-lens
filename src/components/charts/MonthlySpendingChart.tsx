@@ -1,12 +1,4 @@
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { EmptyState } from "../shared/EmptyState";
 import { formatEuro } from "../../utils/formatters";
 
@@ -25,15 +17,10 @@ export function MonthlySpendingChart({ data, height = 320 }: MonthlySpendingChar
 
   return (
     <div style={{ width: "100%", height }}>
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 0, height }}>
         <BarChart data={rows} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
           <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" />
-          <XAxis
-            dataKey="month"
-            stroke="var(--color-text-muted)"
-            fontSize={12}
-            tickLine={false}
-          />
+          <XAxis dataKey="month" stroke="var(--color-text-muted)" fontSize={12} tickLine={false} />
           <YAxis
             stroke="var(--color-text-muted)"
             fontSize={12}

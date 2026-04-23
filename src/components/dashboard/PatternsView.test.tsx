@@ -28,4 +28,26 @@ describe("PatternsView", () => {
     expect(screen.getByText(/uhrzeit/i)).toBeInTheDocument();
     expect(screen.getByText(/heatmap|kalender/i)).toBeInTheDocument();
   });
+
+  it("uses German KPI labels", () => {
+    const items = [
+      createOrderItem({
+        orderId: "O-1",
+        orderDate: new Date("2024-10-21T12:00:00Z"),
+      }),
+      createOrderItem({
+        orderId: "O-2",
+        orderDate: new Date("2024-10-22T08:00:00Z"),
+      }),
+    ];
+    renderWithContext(<PatternsView />, {
+      initialState: {
+        items,
+        orders: aggregateOrders(items),
+        isDataLoaded: true,
+      },
+    });
+    expect(screen.getByText("Aktivster Tag")).toBeInTheDocument();
+    expect(screen.queryByText("Busiest Day")).not.toBeInTheDocument();
+  });
 });

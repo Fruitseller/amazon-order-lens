@@ -2,35 +2,26 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import type { ProductCategory } from "../../types/order";
 import { EmptyState } from "../shared/EmptyState";
 import { formatEuro } from "../../utils/formatters";
-import {
-  CATEGORY_LABELS_DE,
-  CATEGORY_ORDER,
-  CHART_COLORS,
-} from "../../utils/constants";
+import { CATEGORY_LABELS_DE, CATEGORY_ORDER, CHART_COLORS } from "../../utils/constants";
 
 export interface CategoryBreakdownChartProps {
   data: Map<ProductCategory, number>;
   height?: number;
 }
 
-export function CategoryBreakdownChart({
-  data,
-  height = 360,
-}: CategoryBreakdownChartProps) {
+export function CategoryBreakdownChart({ data, height = 360 }: CategoryBreakdownChartProps) {
   if (data.size === 0) {
     return <EmptyState message="Keine Daten für den aktuellen Zeitraum." />;
   }
-  const rows = CATEGORY_ORDER.filter((cat) => (data.get(cat) ?? 0) > 0).map(
-    (cat, idx) => ({
-      name: CATEGORY_LABELS_DE[cat],
-      value: data.get(cat) ?? 0,
-      color: CHART_COLORS[idx % CHART_COLORS.length] ?? "var(--color-chart-1)",
-    }),
-  );
+  const rows = CATEGORY_ORDER.filter((cat) => (data.get(cat) ?? 0) > 0).map((cat, idx) => ({
+    name: CATEGORY_LABELS_DE[cat],
+    value: data.get(cat) ?? 0,
+    color: CHART_COLORS[idx % CHART_COLORS.length] ?? "var(--color-chart-1)",
+  }));
 
   return (
     <div style={{ width: "100%", height }}>
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 0, height }}>
         <PieChart>
           <Pie
             data={rows}

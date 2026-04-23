@@ -17,15 +17,10 @@ export interface CumulativeSpendingChartProps {
   height?: number;
 }
 
-export function CumulativeSpendingChart({
-  items,
-  height = 360,
-}: CumulativeSpendingChartProps) {
+export function CumulativeSpendingChart({ items, height = 360 }: CumulativeSpendingChartProps) {
   const rows = useMemo(() => {
     if (items.length === 0) return [];
-    const sorted = [...items].sort(
-      (a, b) => a.orderDate.getTime() - b.orderDate.getTime(),
-    );
+    const sorted = [...items].sort((a, b) => a.orderDate.getTime() - b.orderDate.getTime());
     let cumulative = 0;
     const out: { date: string; cumulative: number }[] = [];
     for (const item of sorted) {
@@ -44,7 +39,7 @@ export function CumulativeSpendingChart({
 
   return (
     <div style={{ width: "100%", height }}>
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 0, height }}>
         <AreaChart data={rows} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
           <defs>
             <linearGradient id="cumArea" x1="0" y1="0" x2="0" y2="1">
@@ -53,12 +48,7 @@ export function CumulativeSpendingChart({
             </linearGradient>
           </defs>
           <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" />
-          <XAxis
-            dataKey="date"
-            stroke="var(--color-text-muted)"
-            fontSize={12}
-            minTickGap={40}
-          />
+          <XAxis dataKey="date" stroke="var(--color-text-muted)" fontSize={12} minTickGap={40} />
           <YAxis
             stroke="var(--color-text-muted)"
             fontSize={12}

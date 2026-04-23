@@ -21,7 +21,7 @@ export function PaymentMethodChart({ data, height = 300 }: PaymentMethodChartPro
 
   return (
     <div style={{ width: "100%", height }}>
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 0, height }}>
         <PieChart>
           <Pie
             data={rows}

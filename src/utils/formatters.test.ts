@@ -9,28 +9,32 @@ import {
 } from "./formatters";
 
 describe("formatEuro", () => {
+  it("keeps the amount and currency symbol together with a non-breaking space", () => {
+    expect(formatEuro(1234.5)).toContain("\u00A0€");
+  });
+
   it("formats positive decimal numbers with German locale", () => {
-    expect(formatEuro(1234.5)).toBe("1.234,50 €");
+    expect(formatEuro(1234.5)).toBe("1.234,50\u00A0€");
   });
 
   it("formats zero", () => {
-    expect(formatEuro(0)).toBe("0,00 €");
+    expect(formatEuro(0)).toBe("0,00\u00A0€");
   });
 
   it("formats negative numbers", () => {
-    expect(formatEuro(-15.99)).toBe("-15,99 €");
+    expect(formatEuro(-15.99)).toBe("-15,99\u00A0€");
   });
 
   it("formats large numbers with thousands separator", () => {
-    expect(formatEuro(1_234_567.89)).toBe("1.234.567,89 €");
+    expect(formatEuro(1_234_567.89)).toBe("1.234.567,89\u00A0€");
   });
 
   it("rounds half to even / standard rounding at 2 decimals", () => {
-    expect(formatEuro(9.999)).toBe("10,00 €");
+    expect(formatEuro(9.999)).toBe("10,00\u00A0€");
   });
 
   it("handles very small fractions", () => {
-    expect(formatEuro(0.004)).toBe("0,00 €");
+    expect(formatEuro(0.004)).toBe("0,00\u00A0€");
   });
 });
 

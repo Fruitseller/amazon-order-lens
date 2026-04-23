@@ -45,12 +45,10 @@ export function PatternsView() {
           }
         />
         <KpiCard
-          label="Busiest Day"
+          label="Aktivster Tag"
           value={insights.busiestDay?.date ?? null}
           description={
-            insights.busiestDay
-              ? `${insights.busiestDay.count} Bestellungen`
-              : undefined
+            insights.busiestDay ? `${insights.busiestDay.count} Bestellungen` : undefined
           }
         />
         <KpiCard
