@@ -97,7 +97,7 @@ export function useInsights(): Insights {
     let totalSavings = 0;
     let itemCount = 0;
     const giftOrderIds = new Set<string>();
-    const paymentMap = new Map<string, number>();
+    const paymentByOrderId = new Map<string, string>();
 
     for (const item of items) {
       const ts = item.orderDate.getTime();
@@ -106,8 +106,14 @@ export function useInsights(): Insights {
       totalSavings += item.totalDiscounts;
       itemCount += item.quantity;
       if (item.isGift) giftOrderIds.add(item.orderId);
-      const key = item.paymentInstrumentType || "Unbekannt";
-      paymentMap.set(key, (paymentMap.get(key) ?? 0) + 1);
+      const currentPayment = paymentByOrderId.get(item.orderId);
+      if (!currentPayment || currentPayment === "Unbekannt") {
+        paymentByOrderId.set(item.orderId, item.paymentInstrumentType || "Unbekannt");
+      }
+    }
+    const paymentMap = new Map<string, number>();
+    for (const paymentMethod of paymentByOrderId.values()) {
+      paymentMap.set(paymentMethod, (paymentMap.get(paymentMethod) ?? 0) + 1);
     }
 
     const totalSpending = calculateTotalSpending(items);

@@ -134,6 +134,33 @@ describe("useInsights", () => {
     expect(result.current.totalSavings).toBeCloseTo(8, 2);
   });
 
+  it("counts payment methods once per order and prefers known values", () => {
+    const items = [
+      createOrderItem({
+        orderId: "O-1",
+        asin: "A",
+        paymentInstrumentType: "",
+      }),
+      createOrderItem({
+        orderId: "O-1",
+        asin: "B",
+        paymentInstrumentType: "Visa",
+      }),
+      createOrderItem({
+        orderId: "O-2",
+        asin: "C",
+        paymentInstrumentType: "",
+      }),
+    ];
+    const orders = aggregateOrders(items);
+    const { result } = renderHook(() => useInsights(), {
+      wrapper: wrapperFor({ items, orders, isDataLoaded: true }),
+    });
+
+    expect(result.current.paymentMethodDistribution.get("Visa")).toBe(1);
+    expect(result.current.paymentMethodDistribution.get("Unbekannt")).toBe(1);
+  });
+
   it("reacts to filter changes and recomputes", () => {
     const items = [
       createOrderItem({
