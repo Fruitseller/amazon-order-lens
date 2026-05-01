@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { EmptyState } from "../shared/EmptyState";
 import { dayOfWeekLabelsDE } from "../../utils/dateUtils";
@@ -8,14 +9,14 @@ export interface DayOfWeekChartProps {
 }
 
 export function DayOfWeekChart({ data, height = 300 }: DayOfWeekChartProps) {
+  const rows = useMemo(
+    () => data.map((count, idx) => ({ day: dayOfWeekLabelsDE[idx] ?? "", count })),
+    [data],
+  );
+
   if (data.length !== 7 || data.every((v) => v === 0)) {
     return <EmptyState message="Keine Daten für den aktuellen Zeitraum." />;
   }
-
-  const rows = data.map((count, idx) => ({
-    day: dayOfWeekLabelsDE[idx] ?? "",
-    count,
-  }));
 
   return (
     <div style={{ width: "100%", height }}>

@@ -1,53 +1,16 @@
-import Papa from "papaparse";
 import type { OrderItem } from "../types/order";
+import { MS_PER_DAY } from "../utils/dateUtils";
 import { inferCategory } from "./categoryInference";
-
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
-// Amazon füllt leere Felder mit diesen Platzhaltern — als Daten wertlos.
-const PLACEHOLDERS: ReadonlySet<string> = new Set([
-  "",
-  "Not Available",
-  "Not Applicable",
-]);
-
-type RawRow = Record<string, string | undefined>;
-
-function pick(raw: RawRow, ...keys: string[]): string {
-  for (const key of keys) {
-    const v = raw[key];
-    if (v !== undefined) return v;
-  }
-  return "";
-}
-
-function cleanString(raw: string): string {
-  const trimmed = raw.trim();
-  return PLACEHOLDERS.has(trimmed) ? "" : trimmed;
-}
-
-function nullIfPlaceholder(raw: string): string | null {
-  const trimmed = raw.trim();
-  return PLACEHOLDERS.has(trimmed) ? null : trimmed;
-}
-
-function parseNumberSafe(raw: string): number {
-  if (PLACEHOLDERS.has(raw.trim())) return 0;
-  const n = Number.parseFloat(raw);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function parseIntSafe(raw: string): number {
-  if (PLACEHOLDERS.has(raw.trim())) return 0;
-  const n = Number.parseInt(raw, 10);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function parseDateSafe(raw: string): Date | null {
-  if (PLACEHOLDERS.has(raw.trim())) return null;
-  const d = new Date(raw);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
+import {
+  cleanString,
+  nullIfPlaceholder,
+  parseCsv,
+  parseDateSafe,
+  parseIntSafe,
+  parseNumberSafe,
+  pick,
+  type RawRow,
+} from "./csvHelpers";
 
 function rawToOrderItem(raw: RawRow): OrderItem | null {
   const orderDate = parseDateSafe(pick(raw, "Order Date"));
@@ -100,17 +63,8 @@ function rawToOrderItem(raw: RawRow): OrderItem | null {
 }
 
 export function parseOrderItems(csvString: string): OrderItem[] {
-  if (!csvString.trim()) return [];
-
-  const result = Papa.parse<RawRow>(csvString, {
-    header: true,
-    dynamicTyping: false,
-    skipEmptyLines: "greedy",
-    transformHeader: (h) => h.trim(),
-  });
-
   const items: OrderItem[] = [];
-  for (const raw of result.data) {
+  for (const raw of parseCsv(csvString)) {
     const item = rawToOrderItem(raw);
     if (item) items.push(item);
   }

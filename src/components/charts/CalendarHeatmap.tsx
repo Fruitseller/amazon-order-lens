@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { OrderItem } from "../../types/order";
+import { MS_PER_DAY } from "../../utils/dateUtils";
 import { EmptyState } from "../shared/EmptyState";
 
 export interface CalendarHeatmapProps {
@@ -69,60 +70,55 @@ function colorForCount(count: number, max: number): string {
   return "var(--color-accent)";
 }
 
+interface HeatmapLayout {
+  cells: { x: number; y: number; date: string; count: number; color: string }[];
+  width: number;
+  height: number;
+}
+
 export function CalendarHeatmap({ items, year }: CalendarHeatmapProps) {
   const resolvedYear = useMemo(() => {
     if (typeof year === "number") return year;
     if (items.length === 0) return null;
-    const latest = Math.max(...items.map((i) => i.orderDate.getUTCFullYear()));
-    return latest;
+    return Math.max(...items.map((i) => i.orderDate.getUTCFullYear()));
   }, [items, year]);
 
-  if (resolvedYear === null) {
-    return <EmptyState message="Keine Daten für den aktuellen Zeitraum." />;
-  }
-
-  const { cells, maxCount, width, height } = useMemo(() => {
+  const layout = useMemo<HeatmapLayout | null>(() => {
+    if (resolvedYear === null) return null;
     const counts = countsFor(items, resolvedYear);
     let maxCount = 0;
     for (const c of counts.values()) if (c > maxCount) maxCount = c;
 
     const first = new Date(Date.UTC(resolvedYear, 0, 1));
-    const cellsList: {
-      x: number;
-      y: number;
-      date: string;
-      count: number;
-      color: string;
-    }[] = [];
+    const cellsList: HeatmapLayout["cells"] = [];
     const startWeekday = isoWeekday(first);
     let day = new Date(first);
     while (day.getUTCFullYear() === resolvedYear) {
       const weekday = isoWeekday(day);
-      const dayOfYear =
-        Math.floor(
-          (day.getTime() - first.getTime()) / (24 * 60 * 60 * 1000),
-        );
+      const dayOfYear = Math.floor((day.getTime() - first.getTime()) / MS_PER_DAY);
       const weekIndex = Math.floor((dayOfYear + startWeekday) / 7);
       const x = LEFT + weekIndex * (CELL + GAP);
       const y = TOP + weekday * (CELL + GAP);
       const key = toISODate(day);
       const count = counts.get(key) ?? 0;
-      cellsList.push({
-        x,
-        y,
-        date: key,
-        count,
-        color: colorForCount(count, maxCount),
-      });
-      day = new Date(day.getTime() + 24 * 60 * 60 * 1000);
+      cellsList.push({ x, y, date: key, count, color: colorForCount(count, maxCount) });
+      day = new Date(day.getTime() + MS_PER_DAY);
     }
-    const lastWeekIndex = Math.floor(
-      (cellsList.length - 1 + startWeekday) / 7,
-    );
-    const width = LEFT + (lastWeekIndex + 1) * (CELL + GAP);
-    const height = TOP + 7 * (CELL + GAP);
-    return { cells: cellsList, maxCount, width, height };
+    const lastWeekIndex = Math.floor((cellsList.length - 1 + startWeekday) / 7);
+    return {
+      cells: cellsList,
+      width: LEFT + (lastWeekIndex + 1) * (CELL + GAP),
+      height: TOP + 7 * (CELL + GAP),
+    };
   }, [items, resolvedYear]);
+
+  if (resolvedYear === null || layout === null) {
+    return <EmptyState message="Keine Daten für den aktuellen Zeitraum." />;
+  }
+
+  const { cells, width, height } = layout;
+  const first = new Date(Date.UTC(resolvedYear, 0, 1));
+  const startWeekday = isoWeekday(first);
 
   return (
     <svg
@@ -146,10 +142,8 @@ export function CalendarHeatmap({ items, year }: CalendarHeatmapProps) {
       ))}
       {MONTH_LABELS.map((label, idx) => {
         const firstOfMonth = new Date(Date.UTC(resolvedYear, idx, 1));
-        const first = new Date(Date.UTC(resolvedYear, 0, 1));
-        const startWeekday = isoWeekday(first);
         const dayOfYear = Math.floor(
-          (firstOfMonth.getTime() - first.getTime()) / (24 * 60 * 60 * 1000),
+          (firstOfMonth.getTime() - first.getTime()) / MS_PER_DAY,
         );
         const weekIndex = Math.floor((dayOfYear + startWeekday) / 7);
         return (

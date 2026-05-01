@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { EmptyState } from "../shared/EmptyState";
 
@@ -7,14 +8,18 @@ export interface HourOfDayChartProps {
 }
 
 export function HourOfDayChart({ data, height = 300 }: HourOfDayChartProps) {
+  const rows = useMemo(
+    () =>
+      data.map((count, hour) => ({
+        hour: `${String(hour).padStart(2, "0")}`,
+        count,
+      })),
+    [data],
+  );
+
   if (data.length !== 24 || data.every((v) => v === 0)) {
     return <EmptyState message="Keine Daten für den aktuellen Zeitraum." />;
   }
-
-  const rows = data.map((count, hour) => ({
-    hour: `${String(hour).padStart(2, "0")}`,
-    count,
-  }));
 
   return (
     <div style={{ width: "100%", height }}>

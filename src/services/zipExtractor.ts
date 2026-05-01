@@ -4,7 +4,6 @@ export interface ExtractedCsvs {
   orderHistoryCsv: string;
   refundDetailsCsv: string | null;
   returnRequestsCsv: string | null;
-  digitalOrdersCsv: string | null;
 }
 
 export class ZipExtractionError extends Error {
@@ -16,12 +15,10 @@ export class ZipExtractionError extends Error {
 
 // Aktuelles Amazon.de-Export-Format (Stand 2026):
 //   Your Amazon Orders/Order History.csv
-//   Your Amazon Orders/Digital Content Orders.csv
 //   Your Returns & Refunds/Refund Details.csv
 // Legacy-Format (vor dem Rename):
 //   Retail.OrderHistory.1.csv (+ .2.csv …)
 //   Retail.OrderHistory.Returns.csv
-//   Digital.Orders.csv
 const ORDER_HISTORY_LEGACY = /(?:^|\/)Retail\.OrderHistory\.(\d+)\.csv$/i;
 const ORDER_HISTORY_CURRENT = /(?:^|\/)Order History(?:\.(\d+))?\.csv$/i;
 const REFUND_DETAILS_PATTERNS: readonly RegExp[] = [
@@ -30,10 +27,6 @@ const REFUND_DETAILS_PATTERNS: readonly RegExp[] = [
 ];
 const RETURN_REQUESTS_PATTERNS: readonly RegExp[] = [
   /(?:^|\/)Return Requests\.csv$/i,
-];
-const DIGITAL_PATTERNS: readonly RegExp[] = [
-  /(?:^|\/)Digital\.Orders\.csv$/i,
-  /(?:^|\/)Digital Content Orders\.csv$/i,
 ];
 
 function stripHeaderLine(csv: string): string {
@@ -65,7 +58,6 @@ export async function extractFromZip(
   const orderHistoryFiles: Array<{ index: number; path: string }> = [];
   let refundDetailsPath: string | null = null;
   let returnRequestsPath: string | null = null;
-  let digitalPath: string | null = null;
 
   for (const [path, file] of Object.entries(zip.files)) {
     if (file.dir) continue;
@@ -89,10 +81,6 @@ export async function extractFromZip(
     }
     if (!returnRequestsPath && anyMatch(path, RETURN_REQUESTS_PATTERNS)) {
       returnRequestsPath = path;
-      continue;
-    }
-    if (!digitalPath && anyMatch(path, DIGITAL_PATTERNS)) {
-      digitalPath = path;
     }
   }
 
@@ -121,9 +109,6 @@ export async function extractFromZip(
   const returnRequestsCsv = returnRequestsPath
     ? (await zip.file(returnRequestsPath)?.async("string")) ?? null
     : null;
-  const digitalOrdersCsv = digitalPath
-    ? (await zip.file(digitalPath)?.async("string")) ?? null
-    : null;
 
-  return { orderHistoryCsv, refundDetailsCsv, returnRequestsCsv, digitalOrdersCsv };
+  return { orderHistoryCsv, refundDetailsCsv, returnRequestsCsv };
 }

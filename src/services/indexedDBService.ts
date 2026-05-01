@@ -54,24 +54,8 @@ function txPromise<T>(
   );
 }
 
-export async function saveData(
-  items: OrderItem[],
-  orders: OrderAggregate[],
-  returns: ReturnRecord[],
-  returnRequests: ReturnRequest[],
-): Promise<void> {
-  const payload: PersistedData = { items, orders, returns, returnRequests };
+export async function saveData(payload: PersistedData): Promise<void> {
   await txPromise("readwrite", (store) => store.put(payload, SINGLETON_KEY));
-}
-
-export function normalizePersisted(data: PersistedData | null): PersistedData | null {
-  if (!data) return null;
-  return {
-    items: data.items ?? [],
-    orders: data.orders ?? [],
-    returns: data.returns ?? [],
-    returnRequests: data.returnRequests ?? [],
-  };
 }
 
 export async function loadData(): Promise<PersistedData | null> {

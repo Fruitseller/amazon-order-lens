@@ -6,6 +6,7 @@ import type {
   ReturnRequest,
 } from "../types/order";
 import {
+  MS_PER_DAY,
   getDayOfWeek,
   getHourOfDay,
   getISOWeekKey,
@@ -13,8 +14,7 @@ import {
   getYear,
 } from "../utils/dateUtils";
 
-const MS_PER_YEAR = 365.25 * 24 * 60 * 60 * 1000;
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const MS_PER_YEAR = 365.25 * MS_PER_DAY;
 
 const berlinDateFormatter = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Europe/Berlin",

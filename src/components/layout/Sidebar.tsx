@@ -1,18 +1,9 @@
 import type { MouseEvent } from "react";
 import { useAppDispatch, useAppState } from "../../context/AppContext";
 import type { ViewId } from "../../types/state";
-import { VIEW_LABELS_DE } from "../../utils/constants";
+import { VIEW_LABELS_DE, VIEW_ORDER } from "../../utils/constants";
 import { setHash, viewToHash } from "../../utils/hashRouter";
 import styles from "./Sidebar.module.css";
-
-const VIEW_ORDER: readonly ViewId[] = [
-  "overview",
-  "spending",
-  "patterns",
-  "categories",
-  "returns",
-  "funfacts",
-];
 
 export function Sidebar() {
   const { activeView } = useAppState();

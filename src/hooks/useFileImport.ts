@@ -42,12 +42,7 @@ export function useFileImport(): (file: File) => Promise<void> {
         // IndexedDB zuerst persistieren, dann erst dispatch — so ist die Dashboard-Anzeige
         // zugleich das Signal, dass die Daten reload-fest sind.
         try {
-          await saveData(
-            result.items,
-            result.orders,
-            result.returns,
-            result.returnRequests,
-          );
+          await saveData(result);
         } catch (saveErr) {
           console.error("[useFileImport] saveData failed:", saveErr);
         }

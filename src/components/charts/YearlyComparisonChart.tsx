@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { EmptyState } from "../shared/EmptyState";
 import { formatEuro } from "../../utils/formatters";
@@ -8,12 +9,17 @@ export interface YearlyComparisonChartProps {
 }
 
 export function YearlyComparisonChart({ data, height = 320 }: YearlyComparisonChartProps) {
+  const rows = useMemo(
+    () =>
+      [...data.entries()]
+        .sort(([a], [b]) => a - b)
+        .map(([year, value]) => ({ year: String(year), value })),
+    [data],
+  );
+
   if (data.size === 0) {
     return <EmptyState message="Keine Daten für den aktuellen Zeitraum." />;
   }
-  const rows = [...data.entries()]
-    .sort(([a], [b]) => a - b)
-    .map(([year, value]) => ({ year: String(year), value }));
 
   return (
     <div style={{ width: "100%", height }}>

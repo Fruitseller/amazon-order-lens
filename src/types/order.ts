@@ -12,36 +12,6 @@ export type ProductCategory =
   | "lebensmittel"
   | "sonstiges";
 
-export interface RawOrderRecord {
-  Website: string;
-  "Order ID": string;
-  "Order Date": string;
-  "Purchase Order Number": string;
-  Currency: string;
-  "Unit Price": string;
-  "Unit Price Tax": string;
-  "Shipping Charge": string;
-  "Total Discounts": string;
-  "Total Owed": string;
-  "Shipment Item Subtotal": string;
-  "Shipment Item Subtotal Tax": string;
-  ASIN: string;
-  "Product Condition": string;
-  Quantity: string;
-  "Payment Instrument Type": string;
-  "Order Status": string;
-  "Shipment Status": string;
-  "Ship Date": string;
-  "Shipping Option": string;
-  "Shipping Address": string;
-  "Billing Address": string;
-  "Carrier Name & Tracking Number": string;
-  "Product Name": string;
-  "Gift Message": string;
-  "Gift Sender Name": string;
-  "Gift Recipient Contact Details": string;
-}
-
 export interface OrderItem {
   // Identifikation
   orderId: string;

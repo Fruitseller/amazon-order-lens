@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppState } from "../../context/AppContext";
-import { useIndexedDB } from "../../hooks/useIndexedDB";
+import { useLoadPersistedData } from "../../hooks/useIndexedDB";
 import { parseHash, setHash } from "../../utils/hashRouter";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
@@ -35,7 +35,7 @@ function viewFor(view: ViewId) {
 export function AppShell() {
   const { isDataLoaded, activeView } = useAppState();
   const dispatch = useAppDispatch();
-  useIndexedDB();
+  useLoadPersistedData();
 
   useEffect(() => {
     const sync = () => {

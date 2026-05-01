@@ -5,10 +5,7 @@ import {
   getHourOfDay,
   getISOWeekKey,
   getMonthKey,
-  groupByMonth,
-  groupByYear,
 } from "./dateUtils";
-import { createOrderItem } from "../../test/fixtures/sampleOrders";
 
 describe("getDayOfWeek (Europe/Berlin, ISO: Monday=0 … Sunday=6)", () => {
   it("returns 0 for Monday", () => {
@@ -59,58 +56,6 @@ describe("getMonthKey", () => {
   it("uses Berlin time at year boundary — Dec 31 23:30 UTC is Jan 1 Berlin", () => {
     // Dec 31 23:30 UTC = Jan 1 00:30 Berlin (CET winter)
     expect(getMonthKey(new Date("2024-12-31T23:30:00Z"))).toBe("2025-01");
-  });
-});
-
-describe("groupByMonth", () => {
-  it("groups OrderItems by Berlin month key", () => {
-    const items = [
-      createOrderItem({ orderDate: new Date("2024-10-15T10:00:00Z") }),
-      createOrderItem({ orderDate: new Date("2024-10-25T10:00:00Z") }),
-      createOrderItem({ orderDate: new Date("2024-11-05T10:00:00Z") }),
-    ];
-    const groups = groupByMonth(items);
-    expect(groups.get("2024-10")?.length).toBe(2);
-    expect(groups.get("2024-11")?.length).toBe(1);
-  });
-
-  it("returns empty Map for empty input", () => {
-    expect(groupByMonth([]).size).toBe(0);
-  });
-
-  it("handles items spanning year boundary", () => {
-    const items = [
-      createOrderItem({ orderDate: new Date("2024-12-20T10:00:00Z") }),
-      createOrderItem({ orderDate: new Date("2025-01-05T10:00:00Z") }),
-    ];
-    const groups = groupByMonth(items);
-    expect(groups.get("2024-12")?.length).toBe(1);
-    expect(groups.get("2025-01")?.length).toBe(1);
-  });
-});
-
-describe("groupByYear", () => {
-  it("groups OrderItems by Berlin year", () => {
-    const items = [
-      createOrderItem({ orderDate: new Date("2022-06-15T10:00:00Z") }),
-      createOrderItem({ orderDate: new Date("2023-06-15T10:00:00Z") }),
-      createOrderItem({ orderDate: new Date("2023-12-10T10:00:00Z") }),
-    ];
-    const groups = groupByYear(items);
-    expect(groups.get(2022)?.length).toBe(1);
-    expect(groups.get(2023)?.length).toBe(2);
-  });
-
-  it("returns empty Map for empty input", () => {
-    expect(groupByYear([]).size).toBe(0);
-  });
-
-  it("shifts items at year boundary to Berlin year", () => {
-    // Dec 31 23:30 UTC 2024 = Jan 1 Berlin 2025
-    const items = [createOrderItem({ orderDate: new Date("2024-12-31T23:30:00Z") })];
-    const groups = groupByYear(items);
-    expect(groups.get(2025)?.length).toBe(1);
-    expect(groups.has(2024)).toBe(false);
   });
 });
 

@@ -6,6 +6,7 @@ import {
   PRIME_SHIPPING_COST_EUR,
 } from "../utils/constants";
 import type { ProductCategory } from "../types/order";
+import { MS_PER_DAY } from "../utils/dateUtils";
 import {
   calculateAverageOrderValue,
   calculateAverageRefund,
@@ -39,8 +40,6 @@ import {
   type TopItemEntry,
   type TopReturnedProductEntry,
 } from "../services/statistics";
-
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 export interface Insights {
   totalSpending: number;

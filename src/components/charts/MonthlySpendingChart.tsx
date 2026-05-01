@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { EmptyState } from "../shared/EmptyState";
 import { formatEuro } from "../../utils/formatters";
@@ -8,12 +9,17 @@ export interface MonthlySpendingChartProps {
 }
 
 export function MonthlySpendingChart({ data, height = 320 }: MonthlySpendingChartProps) {
+  const rows = useMemo(
+    () =>
+      [...data.entries()]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([month, value]) => ({ month, value })),
+    [data],
+  );
+
   if (data.size === 0) {
     return <EmptyState message="Keine Daten für den aktuellen Zeitraum." />;
   }
-  const rows = [...data.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([month, value]) => ({ month, value }));
 
   return (
     <div style={{ width: "100%", height }}>

@@ -1,15 +1,9 @@
 import type { ViewId } from "../types/state";
+import { VIEW_LABELS_DE } from "./constants";
 
 export const DEFAULT_VIEW: ViewId = "overview";
 
-const VALID_VIEWS: ReadonlySet<string> = new Set([
-  "overview",
-  "spending",
-  "patterns",
-  "categories",
-  "returns",
-  "funfacts",
-]);
+const VALID_VIEWS: ReadonlySet<string> = new Set(Object.keys(VIEW_LABELS_DE));
 
 export function parseHash(raw: string): ViewId {
   if (!raw) return DEFAULT_VIEW;

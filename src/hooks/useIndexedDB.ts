@@ -2,11 +2,9 @@ import { useCallback, useEffect } from "react";
 import { useAppDispatch } from "../context/AppContext";
 import { clearData, loadData } from "../services/indexedDBService";
 
-export interface IndexedDBHandle {
-  clear: () => Promise<void>;
-}
-
-export function useIndexedDB(): IndexedDBHandle {
+// Hydratisiert den App-State einmalig aus IndexedDB. Genau einmal pro Mount aufrufen,
+// üblicherweise im AppShell — sonst feuern doppelte Loads beim ersten Render.
+export function useLoadPersistedData(): void {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -25,11 +23,13 @@ export function useIndexedDB(): IndexedDBHandle {
       cancelled = true;
     };
   }, [dispatch]);
+}
 
-  const clear = useCallback(async () => {
+export function useClearPersistedData(): () => Promise<void> {
+  const dispatch = useAppDispatch();
+
+  return useCallback(async () => {
     await clearData();
     dispatch({ type: "CLEAR_DATA" });
   }, [dispatch]);
-
-  return { clear };
 }

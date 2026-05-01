@@ -39,16 +39,6 @@ describe("extractFromZip — happy path", () => {
     expect(result.orderHistoryCsv).toContain("B08NEW0001");
   });
 
-  it("extracts 'Your Amazon Orders/Digital Content Orders.csv' as digitalOrdersCsv", async () => {
-    const csv = `${HEADER}\n${row("B08AAA0001")}\n`;
-    const zipBuf = await makeZip({
-      "Your Amazon Orders/Order History.csv": csv,
-      "Your Amazon Orders/Digital Content Orders.csv": "Order ID\nD01-1\n",
-    });
-    const result = await extractFromZip(zipBuf);
-    expect(result.digitalOrdersCsv).toContain("D01-1");
-  });
-
   it("extracts 'Your Returns & Refunds/Refund Details.csv' as refundDetailsCsv", async () => {
     const csv = `${HEADER}\n${row("B08AAA0001")}\n`;
     const zipBuf = await makeZip({
@@ -112,18 +102,6 @@ describe("extractFromZip — happy path", () => {
     const result = await extractFromZip(zipBuf);
     expect(result.refundDetailsCsv).toBeNull();
     expect(result.returnRequestsCsv).toBeNull();
-    expect(result.digitalOrdersCsv).toBeNull();
-  });
-
-  it("extracts Digital.Orders.csv when present", async () => {
-    const csv = `${HEADER}\n${row("B08AAA0001")}\n`;
-    const digital = "Order ID,ASIN\n306-D1,B08DIG0001\n";
-    const zipBuf = await makeZip({
-      "Retail.OrderHistory.1.csv": csv,
-      "Digital.Orders.csv": digital,
-    });
-    const result = await extractFromZip(zipBuf);
-    expect(result.digitalOrdersCsv).toContain("B08DIG0001");
   });
 });
 

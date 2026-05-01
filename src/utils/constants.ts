@@ -45,6 +45,8 @@ export const CHART_COLORS: readonly string[] = [
   "var(--color-chart-8)",
 ];
 
+// Reihenfolge bestimmt die Sidebar-Reihenfolge und ist die Single Source of Truth
+// für gültige View-IDs (siehe `ViewId` in types/state.ts und `VALID_VIEWS` in hashRouter.ts).
 export const VIEW_LABELS_DE = {
   overview: "Übersicht",
   spending: "Ausgaben",
@@ -53,3 +55,7 @@ export const VIEW_LABELS_DE = {
   returns: "Retouren",
   funfacts: "Fun Facts",
 } as const;
+
+export const VIEW_ORDER = Object.keys(VIEW_LABELS_DE) as ReadonlyArray<
+  keyof typeof VIEW_LABELS_DE
+>;

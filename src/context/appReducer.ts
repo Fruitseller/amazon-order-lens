@@ -27,6 +27,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         importError: null,
       };
     case "IMPORT_PROGRESS":
+      if (state.importProgress === action.progress) return state;
       return { ...state, importProgress: action.progress };
     case "IMPORT_COMPLETE":
       return {

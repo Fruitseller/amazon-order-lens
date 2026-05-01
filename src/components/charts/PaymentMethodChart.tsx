@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { EmptyState } from "../shared/EmptyState";
 import { CHART_COLORS } from "../../utils/constants";
@@ -8,16 +9,21 @@ export interface PaymentMethodChartProps {
 }
 
 export function PaymentMethodChart({ data, height = 300 }: PaymentMethodChartProps) {
+  const rows = useMemo(
+    () =>
+      [...data.entries()]
+        .sort(([, a], [, b]) => b - a)
+        .map(([name, value], idx) => ({
+          name,
+          value,
+          color: CHART_COLORS[idx % CHART_COLORS.length] ?? "var(--color-chart-1)",
+        })),
+    [data],
+  );
+
   if (data.size === 0) {
     return <EmptyState message="Keine Daten für den aktuellen Zeitraum." />;
   }
-  const rows = [...data.entries()]
-    .sort(([, a], [, b]) => b - a)
-    .map(([name, value], idx) => ({
-      name,
-      value,
-      color: CHART_COLORS[idx % CHART_COLORS.length] ?? "var(--color-chart-1)",
-    }));
 
   return (
     <div style={{ width: "100%", height }}>

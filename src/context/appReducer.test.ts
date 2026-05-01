@@ -39,6 +39,12 @@ describe("appReducer — import actions", () => {
     expect(next.isImporting).toBe(true);
   });
 
+  it("IMPORT_PROGRESS returns the same state when progress is unchanged", () => {
+    const state = { ...initialState, isImporting: true, importProgress: 60 };
+    const next = appReducer(state, { type: "IMPORT_PROGRESS", progress: 60 });
+    expect(next).toBe(state);
+  });
+
   it("IMPORT_COMPLETE stores data and sets isDataLoaded true", () => {
     const items = [createOrderItem()];
     const orders = [createOrderAggregate()];

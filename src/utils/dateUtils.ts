@@ -1,6 +1,6 @@
-import type { OrderItem } from "../types/order";
-
 const BERLIN_TZ = "Europe/Berlin";
+
+export const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 const berlinPartsFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: BERLIN_TZ,
@@ -82,41 +82,8 @@ export function getISOWeekKey(date: Date): string {
   const jan4DowUTC = jan4.getUTCDay() || 7;
   const week1Monday = new Date(Date.UTC(isoYear, 0, 4 - (jan4DowUTC - 1)));
   const diffDays = Math.floor(
-    (thursday.getTime() - week1Monday.getTime()) / (24 * 60 * 60 * 1000),
+    (thursday.getTime() - week1Monday.getTime()) / MS_PER_DAY,
   );
   const week = Math.floor(diffDays / 7) + 1;
   return `${isoYear}-W${String(week).padStart(2, "0")}`;
-}
-
-export function groupByMonth(items: readonly OrderItem[]): Map<string, OrderItem[]> {
-  const result = new Map<string, OrderItem[]>();
-  for (const item of items) {
-    const key = getMonthKey(item.orderDate);
-    const list = result.get(key);
-    if (list) {
-      list.push(item);
-    } else {
-      result.set(key, [item]);
-    }
-  }
-  return result;
-}
-
-export function groupByYear(items: readonly OrderItem[]): Map<number, OrderItem[]> {
-  const result = new Map<number, OrderItem[]>();
-  for (const item of items) {
-    const year = getYear(item.orderDate);
-    const list = result.get(year);
-    if (list) {
-      list.push(item);
-    } else {
-      result.set(year, [item]);
-    }
-  }
-  return result;
-}
-
-export function getDaysBetween(a: Date, b: Date): number {
-  const ms = b.getTime() - a.getTime();
-  return Math.round(ms / (24 * 60 * 60 * 1000));
 }

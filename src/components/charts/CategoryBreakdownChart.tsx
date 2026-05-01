@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import type { ProductCategory } from "../../types/order";
 import { EmptyState } from "../shared/EmptyState";
@@ -10,14 +11,19 @@ export interface CategoryBreakdownChartProps {
 }
 
 export function CategoryBreakdownChart({ data, height = 360 }: CategoryBreakdownChartProps) {
+  const rows = useMemo(
+    () =>
+      CATEGORY_ORDER.filter((cat) => (data.get(cat) ?? 0) > 0).map((cat, idx) => ({
+        name: CATEGORY_LABELS_DE[cat],
+        value: data.get(cat) ?? 0,
+        color: CHART_COLORS[idx % CHART_COLORS.length] ?? "var(--color-chart-1)",
+      })),
+    [data],
+  );
+
   if (data.size === 0) {
     return <EmptyState message="Keine Daten für den aktuellen Zeitraum." />;
   }
-  const rows = CATEGORY_ORDER.filter((cat) => (data.get(cat) ?? 0) > 0).map((cat, idx) => ({
-    name: CATEGORY_LABELS_DE[cat],
-    value: data.get(cat) ?? 0,
-    color: CHART_COLORS[idx % CHART_COLORS.length] ?? "var(--color-chart-1)",
-  }));
 
   return (
     <div style={{ width: "100%", height }}>

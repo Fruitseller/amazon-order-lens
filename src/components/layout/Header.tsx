@@ -1,11 +1,11 @@
 import { useAppState } from "../../context/AppContext";
-import { useIndexedDB } from "../../hooks/useIndexedDB";
+import { useClearPersistedData } from "../../hooks/useIndexedDB";
 import { PrivacyBadge } from "../shared/PrivacyBadge";
 import styles from "./Header.module.css";
 
 export function Header() {
   const { isDataLoaded } = useAppState();
-  const { clear } = useIndexedDB();
+  const clear = useClearPersistedData();
 
   const handleClear = async () => {
     if (!window.confirm("Alle lokalen Daten unwiderruflich löschen?")) return;

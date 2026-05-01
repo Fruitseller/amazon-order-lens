@@ -1,3 +1,4 @@
+import type { VIEW_LABELS_DE } from "../utils/constants";
 import type {
   OrderAggregate,
   OrderItem,
@@ -6,13 +7,7 @@ import type {
   ReturnRequest,
 } from "./order";
 
-export type ViewId =
-  | "overview"
-  | "spending"
-  | "patterns"
-  | "categories"
-  | "returns"
-  | "funfacts";
+export type ViewId = keyof typeof VIEW_LABELS_DE;
 
 export interface DateRange {
   from: Date | null;

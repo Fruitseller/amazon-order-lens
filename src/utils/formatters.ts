@@ -40,11 +40,17 @@ export function formatDate(value: Date | null): string {
   return dateFormatter.format(value);
 }
 
+const numberFormatterCache = new Map<number, Intl.NumberFormat>();
+
 export function formatNumber(value: number, fractionDigits = 0): string {
-  const formatter = new Intl.NumberFormat(LOCALE, {
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  });
+  let formatter = numberFormatterCache.get(fractionDigits);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(LOCALE, {
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits,
+    });
+    numberFormatterCache.set(fractionDigits, formatter);
+  }
   return normalizeWhitespace(formatter.format(value));
 }
 

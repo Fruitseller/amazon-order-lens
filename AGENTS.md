@@ -35,8 +35,8 @@ The dev server uses `strictPort: true` on port `5199`; Playwright also expects `
 ## Repository Map
 
 - `src/types/` defines the core contracts. Start here before changing data shape.
-- `src/services/` contains pure domain logic: CSV parsing, ZIP extraction, category inference, order aggregation, statistics, IndexedDB service.
-- `src/workers/parserWorkerLogic.ts` orchestrates ZIP/CSV import into parsed items, aggregates, returns, and progress. `parser.worker.ts` wraps it for worker messaging, but the current import hook calls the logic directly.
+- `src/services/` contains pure domain logic: CSV parsing, ZIP extraction, category inference, order aggregation, statistics, IndexedDB service. Shared CSV parsing primitives live in `csvHelpers.ts` and are reused by both `parser.ts` and `returnsParser.ts`.
+- `src/workers/parserWorkerLogic.ts` orchestrates ZIP/CSV import into parsed items, aggregates, returns, and progress. The import hook calls the logic directly on the main thread; there is no worker wrapper.
 - `src/context/` contains `AppState`, actions, reducer, and providers.
 - `src/hooks/` connects state, persistence, filtering, import, and derived insights.
 - `src/components/` contains UI by feature area: `upload`, `layout`, `filters`, `dashboard`, `charts`, `shared`.
@@ -56,12 +56,12 @@ Import flow:
 
 Dashboard flow:
 
-1. `useIndexedDB` loads persisted data on mount and exposes `clear()`.
+1. `useLoadPersistedData` (called once in `AppShell`) hydrates state from IndexedDB on mount; `useClearPersistedData` (used by `Header`) wipes both state and IndexedDB.
 2. `useFilteredData` applies date, category, and search filters to items, then keeps matching orders by `orderId`.
 3. `useInsights` computes all dashboard metrics from filtered order data plus global returns data.
 4. Dashboard views render KPI cards, section cards, tables, and charts from `useInsights`.
 
-Navigation uses hash routes only. Add new views by updating `ViewId`, `VIEW_LABELS_DE`, `hashRouter` valid views, `Sidebar` order, `AppShell.viewFor`, and tests.
+Navigation uses hash routes only. `VIEW_LABELS_DE` in `src/utils/constants.ts` is the single source of truth — `ViewId`, `VIEW_ORDER`, and the `hashRouter` `VALID_VIEWS` set all derive from it. Add a new view by adding a key to `VIEW_LABELS_DE`, adding a case to `AppShell.viewFor`, and adding tests.
 
 ## Domain Rules To Preserve
 
@@ -151,6 +151,5 @@ Adding a dashboard view:
 - `README.md` references a `CLAUDE.md`, but no such file currently exists in this repo.
 - License metadata is inconsistent: `README.md` says `0BSD`, `package.json` says `MIT`, and `LICENSE` text is permissive but not labeled. Do not touch this unless the task is about licensing.
 - `dist/`, `node_modules/`, `coverage/`, `playwright-report/`, and `test-results/` are generated. Avoid editing or reviewing them as source.
-- `useIndexedDB` is called by both `AppShell` and `Header`; be careful when changing its side effects.
 - `DataTable` currently uses row index as key. If adding mutable/reorderable table interactions, provide stable keys first.
 - The app imports Google Fonts in `index.html`; this is unrelated to order data but still an external request on page load.

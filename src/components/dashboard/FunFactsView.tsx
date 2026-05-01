@@ -12,6 +12,34 @@ import {
 } from "../../utils/constants";
 import { formatDate, formatEuro, formatNumber } from "../../utils/formatters";
 
+const eventColumns: DataTableColumn<ShoppingEventEntry>[] = [
+  { key: "event", label: "Event", sortable: true },
+  {
+    key: "totalSpending",
+    label: "Ausgaben",
+    align: "right",
+    sortable: true,
+    sortValue: (row) => row.totalSpending,
+    render: (row) => formatEuro(row.totalSpending),
+  },
+  {
+    key: "orderCount",
+    label: "Bestellungen",
+    align: "right",
+    sortable: true,
+    sortValue: (row) => row.orderCount,
+    render: (row) => formatNumber(row.orderCount),
+  },
+  {
+    key: "itemCount",
+    label: "Artikel",
+    align: "right",
+    sortable: true,
+    sortValue: (row) => row.itemCount,
+    render: (row) => formatNumber(row.itemCount),
+  },
+];
+
 export function FunFactsView() {
   const insights = useInsights();
   const { items } = useFilteredData();
@@ -25,34 +53,6 @@ export function FunFactsView() {
 
   const investmentLabel = `Hätte ich bei ${formatNumber(INVESTMENT_ANNUAL_RATE * 100, 0)} % p.a. investiert`;
   const packagesCO2 = insights.orderCount * PACKAGE_CO2_KG;
-
-  const eventColumns: DataTableColumn<ShoppingEventEntry>[] = [
-    { key: "event", label: "Event", sortable: true },
-    {
-      key: "totalSpending",
-      label: "Ausgaben",
-      align: "right",
-      sortable: true,
-      sortValue: (row) => row.totalSpending,
-      render: (row) => formatEuro(row.totalSpending),
-    },
-    {
-      key: "orderCount",
-      label: "Bestellungen",
-      align: "right",
-      sortable: true,
-      sortValue: (row) => row.orderCount,
-      render: (row) => formatNumber(row.orderCount),
-    },
-    {
-      key: "itemCount",
-      label: "Artikel",
-      align: "right",
-      sortable: true,
-      sortValue: (row) => row.itemCount,
-      render: (row) => formatNumber(row.itemCount),
-    },
-  ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xl)" }}>
