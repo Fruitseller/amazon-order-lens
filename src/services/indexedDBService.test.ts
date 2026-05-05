@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { resetIndexedDB } from "../../test/helpers/fakeIndexedDB";
 import {
   DB_NAME,
+  PERSISTED_SCHEMA_VERSION,
   clearData,
   loadData,
   saveData,
@@ -38,6 +39,31 @@ describe("indexedDBService", () => {
     expect(loaded?.orders).toHaveLength(1);
     expect(loaded?.returns).toHaveLength(1);
     expect(loaded?.items[0]?.productName).toBe("Äöü ß test");
+  });
+
+  it("stores data in a versioned envelope", async () => {
+    const items = [createOrderItem()];
+    await saveData({ items, orders: aggregateOrders(items), returns: [], returnRequests: [] });
+
+    const raw = await new Promise<unknown>((resolve, reject) => {
+      const openRequest = indexedDB.open(DB_NAME, 1);
+      openRequest.onerror = () => reject(openRequest.error);
+      openRequest.onsuccess = () => {
+        const db = openRequest.result;
+        const tx = db.transaction("orderData", "readonly");
+        const getRequest = tx.objectStore("orderData").get("current");
+        getRequest.onerror = () => reject(getRequest.error);
+        getRequest.onsuccess = () => {
+          resolve(getRequest.result);
+          db.close();
+        };
+      };
+    });
+
+    expect(raw).toMatchObject({
+      schemaVersion: PERSISTED_SCHEMA_VERSION,
+      data: { items: expect.any(Array), orders: expect.any(Array) },
+    });
   });
 
   it("preserves Date objects as Date instances after round-trip", async () => {

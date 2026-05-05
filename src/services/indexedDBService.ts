@@ -6,6 +6,7 @@ import type {
 } from "../types/order";
 
 export const DB_NAME = "amazon-order-lens";
+export const PERSISTED_SCHEMA_VERSION = 1;
 const DB_VERSION = 1;
 const STORE_NAME = "orderData";
 const SINGLETON_KEY = "current";
@@ -15,6 +16,32 @@ export interface PersistedData {
   orders: OrderAggregate[];
   returns: ReturnRecord[];
   returnRequests: ReturnRequest[];
+}
+
+interface PersistedEnvelope {
+  schemaVersion: typeof PERSISTED_SCHEMA_VERSION;
+  data: PersistedData;
+}
+
+function isPersistedEnvelope(value: unknown): value is PersistedEnvelope {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "schemaVersion" in value &&
+    "data" in value &&
+    (value as { schemaVersion: unknown }).schemaVersion === PERSISTED_SCHEMA_VERSION
+  );
+}
+
+function isLegacyPersistedData(value: unknown): value is PersistedData {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "items" in value &&
+    "orders" in value &&
+    "returns" in value &&
+    "returnRequests" in value
+  );
 }
 
 function openDB(): Promise<IDBDatabase> {
@@ -33,7 +60,7 @@ function openDB(): Promise<IDBDatabase> {
 }
 
 function txPromise<T>(
-  storeMode: IDBTransactionMode,
+  storeMode: "readonly" | "readwrite",
   operation: (store: IDBObjectStore) => IDBRequest<T>,
 ): Promise<T> {
   return openDB().then(
@@ -55,15 +82,23 @@ function txPromise<T>(
 }
 
 export async function saveData(payload: PersistedData): Promise<void> {
-  await txPromise("readwrite", (store) => store.put(payload, SINGLETON_KEY));
+  const envelope: PersistedEnvelope = {
+    schemaVersion: PERSISTED_SCHEMA_VERSION,
+    data: payload,
+  };
+  await txPromise("readwrite", (store) => store.put(envelope, SINGLETON_KEY));
 }
 
 export async function loadData(): Promise<PersistedData | null> {
-  const result = (await txPromise(
+  const result = await txPromise(
     "readonly",
-    (store) => store.get(SINGLETON_KEY) as IDBRequest<PersistedData | undefined>,
-  )) as PersistedData | undefined;
-  return result ?? null;
+    (store) => store.get(SINGLETON_KEY) as IDBRequest<unknown>,
+  );
+
+  if (!result) return null;
+  if (isPersistedEnvelope(result)) return result.data;
+  if (isLegacyPersistedData(result)) return result;
+  return null;
 }
 
 export async function clearData(): Promise<void> {
