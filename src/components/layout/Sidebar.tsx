@@ -1,5 +1,5 @@
 import type { MouseEvent } from "react";
-import { useAppDispatch, useAppState } from "../../context/AppContext";
+import { useAppDispatch, useAppState } from "../../context/appHooks";
 import type { ViewId } from "../../types/state";
 import { VIEW_LABELS_DE, VIEW_ORDER } from "../../utils/constants";
 import { setHash, viewToHash } from "../../utils/hashRouter";

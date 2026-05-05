@@ -1,4 +1,4 @@
-import { useAppState } from "../../context/AppContext";
+import { useAppState } from "../../context/appHooks";
 import { useFileImport } from "../../hooks/useFileImport";
 import { DropZone } from "./DropZone";
 import { ImportGuide } from "./ImportGuide";

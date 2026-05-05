@@ -3,7 +3,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Sidebar } from "./Sidebar";
 import { renderWithContext } from "../../../test/helpers/renderWithContext";
-import { useAppState } from "../../context/AppContext";
+import { useAppState } from "../../context/appHooks";
 
 function Probe() {
   const s = useAppState();

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useFilteredData } from "./useFilteredData";
-import { useAppState } from "../context/AppContext";
+import { useAppState } from "../context/appHooks";
 import { calculateInsights, type Insights } from "../services/insights";
 
 export type { Insights } from "../services/insights";

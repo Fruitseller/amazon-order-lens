@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { act, render, renderHook } from "@testing-library/react";
-import {
-  AppProvider,
-  useAppDispatch,
-  useAppState,
-} from "./AppContext";
+import { AppProvider } from "./AppContext";
+import { useAppDispatch, useAppState } from "./appHooks";
 import { initialState } from "./appReducer";
 
 describe("AppProvider", () => {

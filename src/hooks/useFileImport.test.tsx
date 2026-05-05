@@ -5,7 +5,7 @@ import { join } from "node:path";
 import JSZip from "jszip";
 import type { ReactNode } from "react";
 import { useFileImport } from "./useFileImport";
-import { useAppState } from "../context/AppContext";
+import { useAppState } from "../context/appHooks";
 import { AppProvider } from "../context/AppContext";
 import { resetIndexedDB } from "../../test/helpers/fakeIndexedDB";
 import { DB_NAME } from "../services/indexedDBService";

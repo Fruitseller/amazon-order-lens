@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useAppDispatch } from "../context/AppContext";
+import { useAppDispatch } from "../context/appHooks";
 import { type ParserWorkerInput } from "../workers/parserWorkerLogic";
 import { parseInWorker } from "../workers/parserWorkerClient";
 import { saveData } from "../services/indexedDBService";

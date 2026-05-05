@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from "react";
-import { useAppDispatch } from "../context/AppContext";
+import { useAppDispatch } from "../context/appHooks";
 import { clearData, loadData } from "../services/indexedDBService";
 
 // Hydratisiert den App-State einmalig aus IndexedDB. Genau einmal pro Mount aufrufen,

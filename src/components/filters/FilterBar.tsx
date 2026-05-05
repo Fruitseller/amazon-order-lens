@@ -1,4 +1,4 @@
-import { useAppDispatch, useAppState } from "../../context/AppContext";
+import { useAppDispatch, useAppState } from "../../context/appHooks";
 import { DateRangeFilter } from "../shared/DateRangeFilter";
 import { CATEGORY_LABELS_DE, CATEGORY_ORDER } from "../../utils/constants";
 import type { ProductCategory } from "../../types/order";

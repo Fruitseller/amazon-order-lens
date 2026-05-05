@@ -1,4 +1,4 @@
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, CSSProperties } from "react";
 import type { DateRange } from "../../types/state";
 
 export interface DateRangeFilterProps {
@@ -83,7 +83,7 @@ export function DateRangeFilter({ value, onChange }: DateRangeFilterProps) {
   );
 }
 
-const inputStyle: React.CSSProperties = {
+const inputStyle: CSSProperties = {
   background: "var(--color-surface)",
   color: "var(--color-text-primary)",
   border: "1px solid var(--color-border)",
@@ -94,7 +94,7 @@ const inputStyle: React.CSSProperties = {
   colorScheme: "dark",
 };
 
-const resetBtn: React.CSSProperties = {
+const resetBtn: CSSProperties = {
   background: "transparent",
   color: "var(--color-text-secondary)",
   border: "1px solid var(--color-border)",

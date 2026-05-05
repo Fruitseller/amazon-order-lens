@@ -1,4 +1,4 @@
-import { useAppState } from "../../context/AppContext";
+import { useAppState } from "../../context/appHooks";
 import { useClearPersistedData } from "../../hooks/useIndexedDB";
 import { PrivacyBadge } from "../shared/PrivacyBadge";
 import styles from "./Header.module.css";

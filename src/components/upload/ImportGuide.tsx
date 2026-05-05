@@ -1,4 +1,6 @@
-const STEPS: { title: string; body: React.ReactNode }[] = [
+import type { ReactNode } from "react";
+
+const STEPS: { title: string; body: ReactNode }[] = [
   {
     title: "Öffne Amazons Datenschutz-Seite",
     body: (

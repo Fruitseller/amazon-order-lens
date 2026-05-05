@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { useClearPersistedData, useLoadPersistedData } from "./useIndexedDB";
-import { useAppState } from "../context/AppContext";
+import { useAppState } from "../context/appHooks";
 import { AppProvider } from "../context/AppContext";
 import { DB_NAME, saveData } from "../services/indexedDBService";
 import {

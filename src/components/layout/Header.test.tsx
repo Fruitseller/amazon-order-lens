@@ -3,7 +3,7 @@ import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Header } from "./Header";
 import { renderWithContext } from "../../../test/helpers/renderWithContext";
-import { useAppState } from "../../context/AppContext";
+import { useAppState } from "../../context/appHooks";
 import {
   createOrderItem,
 } from "../../../test/fixtures/sampleOrders";

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useAppState } from "../context/AppContext";
+import { useAppState } from "../context/appHooks";
 import type { OrderAggregate, OrderItem } from "../types/order";
 
 export interface FilteredData {

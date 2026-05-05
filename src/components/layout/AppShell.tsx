@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useAppDispatch, useAppState } from "../../context/AppContext";
+import { useAppDispatch, useAppState } from "../../context/appHooks";
 import { useLoadPersistedData } from "../../hooks/useIndexedDB";
 import { parseHash, setHash } from "../../utils/hashRouter";
 import { Sidebar } from "./Sidebar";

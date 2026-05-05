@@ -1,16 +1,7 @@
-import {
-  createContext,
-  useContext,
-  useMemo,
-  useReducer,
-  type Dispatch,
-  type ReactNode,
-} from "react";
-import type { AppAction, AppState } from "../types/state";
+import { useMemo, useReducer, type ReactNode } from "react";
+import type { AppState } from "../types/state";
 import { appReducer, initialState } from "./appReducer";
-
-const StateContext = createContext<AppState | null>(null);
-const DispatchContext = createContext<Dispatch<AppAction> | null>(null);
+import { DispatchContext, StateContext } from "./appProviderContexts";
 
 export interface AppProviderProps {
   children: ReactNode;
@@ -30,18 +21,3 @@ export function AppProvider({ children, initialOverride }: AppProviderProps) {
   );
 }
 
-export function useAppState(): AppState {
-  const state = useContext(StateContext);
-  if (state === null) {
-    throw new Error("useAppState must be used within an AppProvider");
-  }
-  return state;
-}
-
-export function useAppDispatch(): Dispatch<AppAction> {
-  const dispatch = useContext(DispatchContext);
-  if (dispatch === null) {
-    throw new Error("useAppDispatch must be used within an AppProvider");
-  }
-  return dispatch;
-}

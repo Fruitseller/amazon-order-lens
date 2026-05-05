@@ -13,6 +13,6 @@ const zip = new JSZip();
 zip.file("Retail.OrderHistory.1.csv", SAMPLE_CSV);
 const buf = await zip.generateAsync({ type: "nodebuffer" });
 writeFileSync(join(__dirname, "test-export.zip"), buf);
-console.log(
+globalThis.console.log(
   `Generated ${join(__dirname, "test-export.zip")} (${buf.length} bytes)`,
 );
