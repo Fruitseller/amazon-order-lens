@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useAppDispatch } from "../context/AppContext";
-import { runParserWorkerLogic, type ParserWorkerInput } from "../workers/parserWorkerLogic";
+import { type ParserWorkerInput } from "../workers/parserWorkerLogic";
+import { parseInWorker } from "../workers/parserWorkerClient";
 import { saveData } from "../services/indexedDBService";
 
 function detectKind(file: File): "zip" | "csv" | "unknown" {
@@ -36,7 +37,7 @@ export function useFileImport(): (file: File) => Promise<void> {
       dispatch({ type: "IMPORT_START" });
       try {
         const input = await fileToInput(file);
-        const result = await runParserWorkerLogic(input, (progress) => {
+        const result = await parseInWorker(input, (progress) => {
           dispatch({ type: "IMPORT_PROGRESS", progress });
         });
         // IndexedDB zuerst persistieren, dann erst dispatch — so ist die Dashboard-Anzeige
