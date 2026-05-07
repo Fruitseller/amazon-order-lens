@@ -167,6 +167,19 @@ describe("parseOrderItems — current Amazon format (2026)", () => {
     expect(items[2]?.paymentInstrumentType).toBe("Mastercard");
   });
 
+  it("falls back to a legacy value when the preferred renamed column is only a placeholder", () => {
+    const csv = [
+      "ASIN,Order Date,Order ID,Product Name,Total Amount,Total Owed,Original Quantity,Quantity,Payment Method Type,Payment Instrument Type",
+      "B0FALLBACK,2024-02-09T08:03:16Z,305-4444444-0000004,Fallback-Test,Not Available,12.34,Not Applicable,2,Not Available,Visa",
+    ].join("\n");
+
+    const [item] = parseOrderItems(csv);
+
+    expect(item?.totalOwed).toBeCloseTo(12.34, 2);
+    expect(item?.quantity).toBe(2);
+    expect(item?.paymentInstrumentType).toBe("Visa");
+  });
+
   it("treats 'Not Available' as null for gift fields (no false-positive gift flag)", () => {
     const csv = loadFixture("amazon-current-format.csv");
     const items = parseOrderItems(csv);

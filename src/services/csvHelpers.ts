@@ -10,11 +10,17 @@ const PLACEHOLDERS: ReadonlySet<string> = new Set([
 export type RawRow = Record<string, string | undefined>;
 
 export function pick(raw: RawRow, ...keys: string[]): string {
+  let placeholderValue = "";
+
   for (const key of keys) {
     const v = raw[key];
-    if (v !== undefined) return v;
+    if (v === undefined) continue;
+
+    if (!PLACEHOLDERS.has(v.trim())) return v;
+    placeholderValue = v;
   }
-  return "";
+
+  return placeholderValue;
 }
 
 export function cleanString(raw: string): string {
