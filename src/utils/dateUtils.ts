@@ -1,9 +1,9 @@
-const BERLIN_TZ = "Europe/Berlin";
+const TZ = "Europe/Berlin";
 
 export const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-const berlinPartsFormatter = new Intl.DateTimeFormat("en-US", {
-  timeZone: BERLIN_TZ,
+const partsFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: TZ,
   year: "numeric",
   month: "2-digit",
   day: "2-digit",
@@ -12,7 +12,7 @@ const berlinPartsFormatter = new Intl.DateTimeFormat("en-US", {
   hour12: false,
 });
 
-interface BerlinParts {
+interface Parts {
   year: number;
   month: number;
   day: number;
@@ -40,8 +40,8 @@ export const dayOfWeekLabelsDE: ReadonlyArray<string> = [
   "So",
 ];
 
-function getBerlinParts(date: Date): BerlinParts {
-  const parts = berlinPartsFormatter.formatToParts(date);
+function getParts(date: Date): Parts {
+  const parts = partsFormatter.formatToParts(date);
   const map: Record<string, string> = {};
   for (const p of parts) {
     map[p.type] = p.value;
@@ -57,24 +57,30 @@ function getBerlinParts(date: Date): BerlinParts {
 }
 
 export function getDayOfWeek(date: Date): number {
-  return getBerlinParts(date).weekday;
+  return getParts(date).weekday;
 }
 
 export function getHourOfDay(date: Date): number {
-  return getBerlinParts(date).hour;
+  return getParts(date).hour;
 }
 
 export function getMonthKey(date: Date): string {
-  const { year, month } = getBerlinParts(date);
+  const { year, month } = getParts(date);
   return `${year}-${String(month).padStart(2, "0")}`;
 }
 
 export function getYear(date: Date): number {
-  return getBerlinParts(date).year;
+  return getParts(date).year;
+}
+
+/** Lokal als YYYY-MM-DD. */
+export function getDateKey(date: Date): string {
+  const { year, month, day } = getParts(date);
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
 export function getISOWeekKey(date: Date): string {
-  const { year, month, day, weekday } = getBerlinParts(date);
+  const { year, month, day, weekday } = getParts(date);
   const isoDow = weekday + 1;
   const thursday = new Date(Date.UTC(year, month - 1, day + (4 - isoDow)));
   const isoYear = thursday.getUTCFullYear();

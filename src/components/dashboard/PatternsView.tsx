@@ -6,6 +6,7 @@ import { KpiCard } from "../shared/KpiCard";
 import { DayOfWeekChart } from "../charts/DayOfWeekChart";
 import { HourOfDayChart } from "../charts/HourOfDayChart";
 import { CalendarHeatmap } from "../charts/CalendarHeatmap";
+import { getYear } from "../../utils/dateUtils";
 import { ShippingAnalysisChart } from "../charts/ShippingAnalysisChart";
 import { formatEuro, formatMonthKey, formatNumber, formatWeekKey } from "../../utils/formatters";
 
@@ -15,7 +16,7 @@ export function PatternsView() {
 
   const years = useMemo(() => {
     const set = new Set<number>();
-    for (const item of items) set.add(item.orderDate.getUTCFullYear());
+    for (const item of items) set.add(getYear(item.orderDate));
     return [...set].sort((a, b) => b - a);
   }, [items]);
 

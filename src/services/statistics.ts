@@ -8,6 +8,7 @@ import type {
 import {
   MS_PER_DAY,
   getDayOfWeek,
+  getDateKey,
   getHourOfDay,
   getISOWeekKey,
   getMonthKey,
@@ -15,17 +16,6 @@ import {
 } from "../utils/dateUtils";
 
 const MS_PER_YEAR = 365.25 * MS_PER_DAY;
-
-const berlinDateFormatter = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "Europe/Berlin",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-});
-
-function toBerlinDateKey(date: Date): string {
-  return berlinDateFormatter.format(date);
-}
 
 export function calculateTotalSpending(items: readonly OrderItem[]): number {
   let sum = 0;
@@ -236,7 +226,7 @@ export function findBusiestDay(
   if (orders.length === 0) return null;
   const counts = new Map<string, number>();
   for (const order of orders) {
-    const key = toBerlinDateKey(order.orderDate);
+    const key = getDateKey(order.orderDate);
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
   let bestDate = "";
@@ -348,7 +338,7 @@ export function calculateShoppingEventStats(
   }
 
   for (const order of orders) {
-    const events = calendar.get(toBerlinDateKey(order.orderDate));
+    const events = calendar.get(getDateKey(order.orderDate));
     if (!events) continue;
     for (const event of events) {
       const bucket = acc.get(event);
@@ -357,7 +347,7 @@ export function calculateShoppingEventStats(
   }
 
   for (const item of items) {
-    const events = calendar.get(toBerlinDateKey(item.orderDate));
+    const events = calendar.get(getDateKey(item.orderDate));
     if (!events) continue;
     for (const event of events) {
       const bucket = acc.get(event);

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { OrderItem } from "../../types/order";
-import { MS_PER_DAY } from "../../utils/dateUtils";
+import { MS_PER_DAY, getDayOfWeek, getDateKey, getYear } from "../../utils/dateUtils";
 import { EmptyState } from "../shared/EmptyState";
 
 export interface CalendarHeatmapProps {
@@ -28,26 +28,12 @@ const MONTH_LABELS = [
 ];
 const WEEKDAY_LABELS = ["Mo", "", "Mi", "", "Fr", "", "So"];
 
-function isoWeekday(date: Date): number {
-  // 0=Mo, 6=So
-  const jsDay = date.getUTCDay();
-  return (jsDay + 6) % 7;
-}
-
-function toISODate(date: Date): string {
-  const y = date.getUTCFullYear();
-  const m = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const d = String(date.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
 function countsFor(items: readonly OrderItem[], year: number): Map<string, number> {
   const counts = new Map<string, number>();
   const orderIdsPerDay = new Map<string, Set<string>>();
   for (const item of items) {
-    const d = item.orderDate;
-    if (d.getUTCFullYear() !== year) continue;
-    const key = toISODate(d);
+    if (getYear(item.orderDate) !== year) continue;
+    const key = getDateKey(item.orderDate);
     let set = orderIdsPerDay.get(key);
     if (!set) {
       set = new Set();
@@ -80,7 +66,7 @@ export function CalendarHeatmap({ items, year }: CalendarHeatmapProps) {
   const resolvedYear = useMemo(() => {
     if (typeof year === "number") return year;
     if (items.length === 0) return null;
-    return Math.max(...items.map((i) => i.orderDate.getUTCFullYear()));
+    return Math.max(...items.map((i) => getYear(i.orderDate)));
   }, [items, year]);
 
   const layout = useMemo<HeatmapLayout | null>(() => {
@@ -90,19 +76,22 @@ export function CalendarHeatmap({ items, year }: CalendarHeatmapProps) {
     for (const c of counts.values()) if (c > maxCount) maxCount = c;
 
     const first = new Date(Date.UTC(resolvedYear, 0, 1));
+    const startWeekday = getDayOfWeek(first);
+
     const cellsList: HeatmapLayout["cells"] = [];
-    const startWeekday = isoWeekday(first);
-    let day = new Date(first);
-    while (day.getUTCFullYear() === resolvedYear) {
-      const weekday = isoWeekday(day);
-      const dayOfYear = Math.floor((day.getTime() - first.getTime()) / MS_PER_DAY);
-      const weekIndex = Math.floor((dayOfYear + startWeekday) / 7);
+    // Tage iterieren: 1. Januar → 31. Dezember
+    let currentDay = new Date(first);
+    let dayIndex = 0;
+    while (getYear(currentDay) === resolvedYear) {
+      const weekday = getDayOfWeek(currentDay);
+      const weekIndex = Math.floor((dayIndex + startWeekday) / 7);
       const x = LEFT + weekIndex * (CELL + GAP);
       const y = TOP + weekday * (CELL + GAP);
-      const key = toISODate(day);
+      const key = getDateKey(currentDay);
       const count = counts.get(key) ?? 0;
       cellsList.push({ x, y, date: key, count, color: colorForCount(count, maxCount) });
-      day = new Date(day.getTime() + MS_PER_DAY);
+      dayIndex += 1;
+      currentDay = new Date(currentDay.getTime() + MS_PER_DAY);
     }
     const lastWeekIndex = Math.floor((cellsList.length - 1 + startWeekday) / 7);
     return {
@@ -118,7 +107,7 @@ export function CalendarHeatmap({ items, year }: CalendarHeatmapProps) {
 
   const { cells, width, height } = layout;
   const first = new Date(Date.UTC(resolvedYear, 0, 1));
-  const startWeekday = isoWeekday(first);
+  const startWeekday = getDayOfWeek(first);
 
   return (
     <svg
@@ -142,10 +131,10 @@ export function CalendarHeatmap({ items, year }: CalendarHeatmapProps) {
       ))}
       {MONTH_LABELS.map((label, idx) => {
         const firstOfMonth = new Date(Date.UTC(resolvedYear, idx, 1));
-        const dayOfYear = Math.floor(
+        const dayIndex = Math.floor(
           (firstOfMonth.getTime() - first.getTime()) / MS_PER_DAY,
         );
-        const weekIndex = Math.floor((dayOfYear + startWeekday) / 7);
+        const weekIndex = Math.floor((dayIndex + startWeekday) / 7);
         return (
           <text
             key={idx}
